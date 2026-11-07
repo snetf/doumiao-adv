@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>豆苗 · AI 时光机</title>
+<link rel="stylesheet" href="style.css?v=47">
+<link rel="stylesheet" href="night.css?v=20">
+<link rel="stylesheet" href="day.css?v=13">
+<link rel="stylesheet" href="spot.css?v=1">
+<link rel="stylesheet" href="responsive.css?v=7">
+<link rel="stylesheet" href="switch.css?v=3">
+</head>
+<body>
+
+<!-- ===== 顶栏 ===== -->
+<header class="topbar">
+  <div class="logo">🌱 豆苗 · AI 时光机</div>
+  <!-- 历史时间轴：随剧情点亮 -->
+  <nav class="timeline" id="timeline"></nav>
+  <div class="top-actions">
+    <button class="tab-btn" data-view="gate">地图</button>
+    <button class="tab-btn" data-view="story">AI发展史</button>
+    <button class="tab-btn" data-view="tips">手账 <span class="badge" id="tipsBadge">0</span></button>
+    <button class="tab-btn" data-view="kb">知识库</button>
+    <button class="tab-btn" data-view="games">AI 小游戏</button>
+    <button class="tab-btn" data-view="spot">找茬馆</button>
+    <button class="tab-btn" data-view="graph">知识图谱</button>
+    <button class="tab-btn" data-view="grow">成长观察</button>
+    <button class="api-entry" id="apiBtn" title="填入自己的 API Key，用你的模型驱动这个作品">API</button>
+  </div>
+</header>
+
+<main>
+  <!-- AI 点缀：全站神经网格底层 -->
+  <div class="ai-mesh" aria-hidden="true"></div>
+  <!-- ===== 视图零：全屏封面大门（10.31 视觉） ===== -->
+  <section id="view-gate" class="view active">
+    <div class="gate-full">
+      <div class="hero-bg">
+        <video class="hero-video" id="heroVideo" src="assets/hero-grow.mp4?v=1" poster="assets/hero-start.jpg" autoplay muted playsinline preload="auto"></video>
+      </div>
+      <div class="hero-inner">
+        <div class="hero-badge"><span class="hb-chip">New</span><span class="hb-dot"></span><span>坐进时光机，亲历 AI 七十年</span></div>
+        <h1 class="hero-big">
+          <span class="hb-line">欢迎来到</span>
+          <span class="hb-line">AI 科普乐园</span>
+        </h1>
+        <p class="hero-desc">一场为青少年打造的 AI 沉浸式冒险：和图灵聊天、看深蓝落子、<br>陪 AlphaGo 下出神之一手——你的每个选择，都会改变这段旅程。</p>
+        <div class="hero-cta">
+          <button class="hero-btn primary" data-goto="story">进入时空画廊 <span class="hb-arr">↗</span></button>
+          <button class="hero-btn primary" data-goto="kb"><span class="hb-play">▶</span> 逛逛知识库</button>
+          <button class="hero-btn ghost" data-goto="spot"><span class="hb-play">🔍</span> 找茬馆</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-icon">◷</span>
+            <div class="stat-num">8 扇时空之门</div>
+            <div class="stat-cap">1950–2022 完整旅程</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">✦</span>
+            <div class="stat-num">5 位传奇人物</div>
+            <div class="stat-cap">与他们面对面聊 AI</div>
+          </div>
+        </div>
+        <div class="hero-trusted">为青少年打造的沉浸式 AI 科普乐园</div>
+        <div class="hero-credit">河海大学计算机与软件学院</div>
+        <div class="hero-brands">
+          <div class="brands-track">
+            <span>图灵测试</span><i>◆</i><span>达特茅斯会议</span><i>◆</i><span>感知机</span><i>◆</i><span>专家系统</span><i>◆</i><span>深蓝</span><i>◆</i><span>深度学习</span><i>◆</i><span>AlphaGo</span><i>◆</i><span>Transformer</span><i>◆</i><span>大模型</span><i>◆</i><span>图灵测试</span><i>◆</i><span>达特茅斯会议</span><i>◆</i><span>感知机</span><i>◆</i><span>专家系统</span><i>◆</i><span>深蓝</span><i>◆</i><span>深度学习</span><i>◆</i><span>AlphaGo</span><i>◆</i><span>Transformer</span><i>◆</i><span>大模型</span><i>◆</i>
+          </div>
+        </div>
+      </div>
+      <div class="nature-layer">
+        <div class="bubble bu1"></div><div class="bubble bu2"></div><div class="bubble bu3"></div>
+        <div class="bubble bu4"></div><div class="bubble bu5"></div>
+      </div>
+      <!-- AI 点缀：悬浮数据标签 -->
+      <span class="ai-chip c1">token</span>
+      <span class="ai-chip c2">权重 · weight</span>
+      <span class="ai-chip c3">推理 · inference</span>
+      <span class="ai-chip c4">embedding</span>
+    </div>
+  </section>
+
+  <!-- ===== 视图一：ADV 冒险 ===== -->
+  <section id="view-story" class="view">
+    <div class="stage">
+      <!-- 场景层：铺满视口，承载 CG 与立绘（pointer-events:none，不吞点击） -->
+      <div class="stage-scene" id="stageScene">
+        <!-- 立绘层：模式 A 只显示当前说话人；群戏节点 stage:'group' 走多人分层 -->
+        <div class="cast-stage" id="castStage"></div>
+      </div>
+
+      <div class="chapter-banner">
+        <span id="chapterTitle">序章</span>
+        <span id="chapterTime" class="chapter-time"></span>
+      </div>
+
+      <!-- HUD 浮层：剧情功能按钮统一收进右上角 -->
+      <div class="stage-hud" id="stageHud">
+        <!-- 续玩：上次没走完，刷新后点一下就能接上 -->
+        <button class="resume-chip hidden" id="resumeChip"></button>
+        <!-- 铺满 / 窗口 开关（默认铺满，记住选择；只在剧情视图出现） -->
+        <button class="log-btn" id="uiModeBtn" title="切换画面铺满 / 窗口模式">🗗 窗口</button>
+        <button class="log-btn" id="autoBtn" aria-pressed="false" title="自动播放剧情">自动</button>
+        <span class="auto-status" id="autoStatus" role="status" aria-live="polite"></span>
+        <!-- 对话回溯按钮（人狼村之谜式ログ） -->
+        <button class="log-btn" id="logBtn" title="查看对话回溯（快捷键 L）">📜 回溯</button>
+        <!-- 旁支小测：本章术语连线，可选、不打断剧情 -->
+        <button class="log-btn" id="quizBtn" title="可选小游戏：本章术语连线">🔗 连线</button>
+        <!-- 开发期临时入口：章节跳转（?dev=1 显示；上线前删除） -->
+        <button class="log-btn hidden" id="devBtn" title="开发者模式：直接跳到某一章">🛠 章节</button>
+        <!-- 返回时空画廊 -->
+        <button class="hall-btn" id="hallBtn" title="返回时空画廊">🚪 画廊</button>
+      </div>
+
+      <div class="dialogue-box" id="dialogueBox">
+        <div class="cast-bar" id="castBar"></div>
+        <div class="speaker" id="speaker">旁白</div>
+        <p class="story-text" id="storyText"></p>
+        <div class="choices" id="choices"></div>
+        <button class="next-btn" id="nextBtn">继续 ▼</button>
+      </div>
+
+      <!-- 旁支小测：术语连线（浮层，可选，可随时跳过；不写任何剧情状态） -->
+      <div class="side-quiz hidden" id="sideQuiz">
+        <div class="sq-top">
+          <b>🔗 术语连线</b>
+          <small id="sqChapter">本章</small>
+          <button class="lg-close" id="sqClose">✕ 跳过</button>
+        </div>
+        <p class="lg-question" id="sqQuestion">正在翻开知识卡片…</p>
+        <div class="lg-choices" id="sqChoices"></div>
+        <div class="lg-actions"><button class="primary-btn" id="sqSubmit">提交答案</button></div>
+        <p class="lg-feedback" id="sqFeedback"></p>
+      </div>
+
+      <!-- 开发期临时：章节跳转面板（上线前删除） -->
+      <div class="dev-panel hidden" id="devPanel"></div>
+
+      <!-- ===== 时空画廊：3D 走廊，两侧的门通向不同年代 ===== -->
+      <div class="hall" id="hall">
+        <div class="hall-scene" id="hallScene">
+          <div class="hall-corridor" id="hallCorridor">
+            <div class="h3d h3d-floor"></div>
+            <div class="h3d h3d-ceil">
+              <div class="h3d-lamp" style="top:4100px"></div>
+              <div class="h3d-lamp flick" style="top:5000px"></div>
+              <div class="h3d-lamp" style="top:5900px"></div>
+            </div>
+            <div class="h3d h3d-wall l"><div id="hallDoorsL"></div></div>
+            <div class="h3d h3d-wall r"><div id="hallDoorsR"></div></div>
+            <div class="h3d h3d-end">
+              <div class="hall-glow" id="hallGlow" title="走进光里，从头开始">
+                <div class="hall-glow-sign">序章 · 博物馆之夜</div>
+                <div class="hall-glow-sub">走进光里，从 1950 年开始完整旅程</div>
+              </div>
+            </div>
+          </div>
+          <div class="hall-dust d1"></div>
+          <div class="hall-dust d2"></div>
+        </div>
+        <!-- 首次进入：只见序章大门（走完序章后才见完整走廊） -->
+        <div class="hall-solo" id="hallSolo">
+          <div class="d3d solo-door" id="soloDoor" title="推开这扇门">
+            <div class="d3d-sign"><b>序章</b><span>博物馆之夜</span></div>
+            <div class="d3d-frame">
+              <div class="d3d-light"></div>
+              <div class="d3d-panel">
+                <div class="d3d-paper">🌙<i>今夜，博物馆为你点亮</i></div>
+                <span class="d3d-knob"></span>
+              </div>
+            </div>
+          </div>
+          <div class="solo-hint">博物馆的大门就在面前 —— 推开它</div>
+        </div>
+        <div class="hall-head">
+          <div class="hall-title">— AI 发展史 · 时空画廊 —</div>
+          <div class="hall-sub">走廊两侧的门，通向不同的年代 —— 推开一扇，去和那个时代的人对话</div>
+        </div>
+        <button class="hall-close" id="hallClose" title="返回封面">✕ 返回封面</button>
+        <button class="hall-resume hidden" id="hallResume">↩ 回到正在进行的旅程</button>
+        <div class="hall-flash" id="hallFlash"></div>
+      </div>
+
+      <!-- 水之子桌宠：默认小头像浮动，点击展开完整形象并打开聊天 -->
+      <div class="pet" id="pet">
+        <div class="pet-mini">💧</div>
+        <img class="pet-img" src="assets/shuizhizi_cut.png" alt="水之子" draggable="false">
+        <div class="pet-bubble" id="petBubble">点我和水之子聊天～</div>
+        <div class="pet-name">水之子</div>
+        <div class="pet-level" id="petLevel">🌱 小豆苗 Lv.1 种子</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 视图二：术语手账（tips库） ===== -->
+  <section id="view-tips" class="view">
+    <h2 class="view-title">术语手账 <small>点击卡片可查看完整知识</small></h2>
+    <div class="book-bar">
+      <span class="book-name" id="bookName">小小研究者手账</span>
+      <button class="primary-btn book-export" id="exportBookBtn">⬇ 导出我的手账</button>
+    </div>
+    <div class="book-claims" id="claimsBox"></div>
+    <div class="tips-grid" id="tipsGrid"></div>
+    <p class="empty-hint" id="tipsEmpty">还没有收集到术语卡，回到冒险里点亮闪闪发光的词吧！</p>
+  </section>
+
+  <!-- ===== 视图：成长观察（家长/教师只读页，只统计维度与结论） ===== -->
+  <section id="view-grow" class="view">
+    <h2 class="view-title">成长观察 <small>给家长和老师 · 只读 · 只统计行为维度与结论，不展示对话原文</small></h2>
+    <div class="grow-grid">
+      <div class="grow-card">
+        <div class="grow-card-head">
+          <h3>五维成长雷达</h3>
+          <span class="grow-badge" id="growDataTag">等待互动</span>
+        </div>
+        <div class="grow-radar-wrap"><svg id="growRadar" viewBox="0 0 340 300" role="img" aria-label="五维成长雷达图"></svg></div>
+        <div class="grow-dims" id="growDims"></div>
+      </div>
+      <div class="grow-side">
+        <div class="grow-card">
+          <div class="grow-card-head"><h3>学习证据</h3></div>
+          <div class="grow-stats" id="growStats"></div>
+        </div>
+        <div class="grow-card">
+          <div class="grow-card-head"><h3>提示使用</h3></div>
+          <div class="grow-hints" id="growHints"></div>
+        </div>
+        <div class="grow-card">
+          <div class="grow-card-head"><h3>观察建议</h3></div>
+          <ul class="grow-advice" id="growAdvice"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="grow-card grow-concl">
+      <div class="grow-card-head">
+        <h3>章末结论卡 · 复述与主张</h3>
+        <span class="grow-note">只统计「是否写过」，不展示孩子写下的原句</span>
+      </div>
+      <div class="grow-concl-list" id="growConcl"></div>
+    </div>
+    <p class="grow-privacy">🔒 本页数据只保存在这台设备（localStorage），不上传；不显示昵称、聊天原文和任何可识别身份的信息。</p>
+  </section>
+
+  <!-- ===== 视图三：知识库（独立于ADV的体系化阅读） ===== -->
+  <section id="view-kb" class="view">
+    <h2 class="view-title">AI知识库 <small>体系化的完整内容 · 点击卡片阅读全文</small></h2>
+    <div class="kb-term-scroll" aria-hidden="true">
+      <div class="kb-term-track" id="kbTermTrack"></div>
+    </div>
+    <div class="kb-toolbar">
+      <input class="kb-search" id="kbSearch" placeholder="搜索词条，如：神经网络">
+      <div class="kb-cats" id="kbCats"></div>
+    </div>
+    <div class="kb-list" id="kbList"></div>
+  </section>
+
+  <!-- ===== 视图五：AI 小游戏 ===== -->
+  <section id="view-games" class="view">
+    <h2 class="view-title">AI 小游戏 <small>玩着玩着，就懂了</small></h2>
+    <p class="games-hint">新游戏会陆续在这里出现，先玩找茬馆和术语连线。</p>
+    <div class="games-grid">
+      <article class="game-card open" data-goto="spot">
+        <span class="game-emoji">🔍</span>
+        <h3>找茬馆</h3>
+        <p>每幅画里都藏着几处和现实不符的小秘密，你能全部找出来吗？</p>
+        <button class="game-play" data-goto="spot">去玩 →</button>
+      </article>
+      <article class="game-card open" data-goto="graph">
+        <span class="game-emoji">🔗</span>
+        <h3>术语连线</h3>
+        <p>把 AI 概念和它的定义连起来——连错了也没关系。</p>
+        <button class="game-play" data-goto="graph">去玩 →</button>
+      </article>
+      <article class="game-card open" data-open="bias">
+        <span class="game-emoji">🐱</span>
+        <h3>喂什么，学什么</h3>
+        <p>只给 AI 看猫，它就不认识狗——数据决定它看得见什么。</p>
+        <button class="game-play" data-open="bias">去玩 →</button>
+      </article>
+      <article class="game-card open" data-open="safety">
+        <span class="game-emoji">🛡️</span>
+        <h3>安全小测</h3>
+        <p>免费皮肤、验证码、中奖链接——三秒钟判断能不能点。</p>
+        <button class="game-play" data-open="safety">去玩 →</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 视图六：找茬馆 ===== -->
+  <section id="view-spot" class="view">
+    <h2 class="view-title">找茬馆 <small>每幅画里都藏着几处和现实不符的小秘密，点出来就算找到</small></h2>
+    <div class="spot-wrap">
+      <div class="spot-card">
+        <div class="spot-bar">
+          <span class="spot-badge">找 茬</span>
+          <div class="spot-titles">
+            <h3 id="spotTitle">正在抽题…</h3>
+            <p id="spotSub">看看这幅画里哪里不对劲</p>
+          </div>
+          <span class="spot-diff" id="spotDiffTag">★☆☆</span>
+          <div class="spot-score"><b id="spotFound">0</b><i>/</i><b id="spotTotal">0</b><span>处</span></div>
+          <div class="spot-actions">
+            <button class="spot-btn hint" id="spotHint">💡 提示</button>
+            <button class="spot-btn" id="spotNext">🎲 换一幅</button>
+          </div>
+        </div>
+        <div class="spot-stage" id="spotStage"></div>
+        <div class="spot-foot">
+          <div class="spot-dots" id="spotDots"></div>
+          <p class="spot-tip" id="spotTip">点一点画里不对劲的地方</p>
+        </div>
+        <div class="spot-result" id="spotResult"></div>
+      </div>
+      <p class="spot-note" id="spotNote">题库加载中…</p>
+    </div>
+  </section>
+
+  <!-- ===== 视图四：知识图谱 ===== -->
+  <section id="view-graph" class="view">
+    <h2 class="view-title">知识图谱 <small>点一点节点，看概念之间怎么连起来</small></h2>
+    <div class="linkgame-bar">
+      <button class="primary-btn linkgame-start" id="linkGameStart">🎮 连边小游戏</button>
+      <span class="linkgame-tip">从 6 个概念里选出真正和中心词相连的 · 全选对得 1 分 · 共 5 题</span>
+    </div>
+    <div class="linkgame" id="linkGame" hidden>
+      <div class="lg-top">
+        <span class="lg-progress" id="lgProgress">第 1 / 5 题</span>
+        <span class="lg-score" id="lgScore">0 分</span>
+        <button class="lg-close" id="lgClose">✕ 收起</button>
+      </div>
+      <p class="lg-question" id="lgQuestionText">和「<b id="lgTerm">—</b>」真正相连的概念是？<small>可多选</small></p>
+      <div class="lg-choices" id="lgChoices"></div>
+      <div class="lg-actions">
+        <button class="primary-btn" id="lgSubmit">提交答案</button>
+      </div>
+      <p class="lg-feedback" id="lgFeedback"></p>
+    </div>
+    <div class="graph-legend" id="graphLegend"></div>
+    <div class="graph-wrap">
+      <svg id="graphSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <p class="graph-hint">单击周围概念 → 以它为中心展开；单击中心或双击任意节点 → 查看知识卡片；双击空白 → 回到「人工智能」。</p>
+  </section>
+</main>
+
+<!-- ===== tips 弹窗 ===== -->
+<div class="modal-mask" id="tipsModal">
+  <div class="tips-card">
+    <div class="swarm-flow" id="swarmFlow" title="多智能体协作流水线">
+      <span>🔍抽取</span><i>→</i><span>📚检索</span><i>→</i><span>✏️改写</span><i>→</i><span>🛡️校验</span>
+    </div>
+    <h3 id="tipsTerm">术语</h3>
+    <p id="tipsBrief"></p>
+    <div class="tips-actions">
+      <button class="primary-btn" id="tipsDeepBtn">📖 深入了解</button>
+      <button class="ghost-btn" id="tipsCloseBtn">继续冒险</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 知识文章弹窗 ===== -->
+<div class="modal-mask" id="kbModal">
+  <div class="kb-card">
+    <div class="kb-head">
+      <h3 id="kbTerm"></h3>
+      <span class="kb-meta" id="kbMeta"></span>
+    </div>
+    <div class="kb-body" id="kbBody"></div>
+    <div class="kb-example" id="kbExample"></div>
+    <div class="kb-related-box">
+      <div class="kb-related-label">🔗 相关概念</div>
+      <div id="kbRelated" class="kb-related-list"></div>
+    </div>
+    <button class="ghost-btn" id="kbCloseBtn">关闭</button>
+  </div>
+</div>
+
+<!-- ===== 水之子聊天面板（迷你版，适配桌宠） ===== -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <span>💧 水之子</span>
+    <button id="chatCloseBtn">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="问问我…" maxlength="200">
+    <button id="chatSendBtn">发送</button>
+  </div>
+  <div class="chat-status" id="chatStatus"></div>
+  <div class="chat-foot">
+    <button class="chat-try" id="chatTryBtn">同一句话，问三次</button>
+    <span class="chat-privacy">你的话只用来生成这次回答，不存档、不公开。</span>
+  </div>
+</div>
+
+<!-- ===== API Key 设置弹窗（让其他人用自己的 Key 运行） ===== -->
+<div class="modal-mask" id="apiModal">
+  <div class="api-card">
+    <h3>🔑 接入你自己的 AI</h3>
+    <p class="api-lead">填入你的阿里云百炼 API Key，这个作品就会用你的模型来生成剧情回应和水之子的回答。Key 只保存在本机服务端，网页代码和访客浏览器都看不到。</p>
+    <div class="api-status" id="apiStatus">读取中……</div>
+
+    <label class="api-label" for="apiKeyInput">API Key</label>
+    <input id="apiKeyInput" class="api-input" type="password" placeholder="sk-……（粘贴后不会显示在页面上）" autocomplete="off" spellcheck="false">
+
+    <label class="api-label" for="apiModelInput">模型（可留空，默认 qwen-flash 最快）</label>
+    <input id="apiModelInput" class="api-input" list="apiModelList" placeholder="qwen-flash" autocomplete="off" spellcheck="false">
+    <datalist id="apiModelList">
+      <option value="qwen-flash"></option>
+      <option value="qwen-turbo"></option>
+      <option value="qwen-plus"></option>
+      <option value="qwen-max"></option>
+      <option value="qwen-long"></option>
+    </datalist>
+
+    <div class="api-actions">
+      <button class="primary-btn" id="apiSaveBtn">保存并启用</button>
+      <button class="ghost-btn" id="apiTestBtn">测试连接</button>
+    </div>
+    <div class="api-links">
+      <button class="api-link" id="apiClearBtn">清除本机保存的 Key</button>
+      <button class="api-link" id="apiCloseBtn">关闭</button>
+    </div>
+    <div class="api-tip" id="apiTip">没有 Key？到阿里云百炼控制台创建一个再粘贴进来；不填也能离线玩完整个冒险。</div>
+  </div>
+</div>
+
+<!-- ===== 小实验：喂什么，学什么 ===== -->
+<div class="modal-mask" id="biasModal">
+  <div class="mini-card">
+    <h3>喂什么，学什么</h3>
+    <p class="mini-lead">先给 AI 看三张猫的图片。它会自己总结出一条「猫的规则」。</p>
+    <div class="bias-box">
+      <div class="bias-samples" id="biasSamples">🐱 🐱 🐱</div>
+      <div class="bias-rule" id="biasRule">规则：尖耳朵 + 胡须 + 毛 = 猫</div>
+    </div>
+    <div class="bias-test">
+      <span class="bias-test-label">再拿一张狗的照片让它认：</span>
+      <span class="bias-photo" id="biasPhoto">🐶</span>
+      <span class="bias-answer" id="biasAnswer">它说：这是猫。</span>
+    </div>
+    <div class="mini-actions">
+      <button class="primary-btn" id="biasTeachBtn">补一张狗的样本</button>
+      <button class="ghost-btn" id="biasCloseBtn">关闭</button>
+    </div>
+    <p class="mini-note" id="biasNote">它只见过猫，所以把狗也叫成猫。不是它笨，是我们没教过。</p>
+  </div>
+</div>
+
+<!-- ===== 安全小测（少年网络安全） ===== -->
+<div class="modal-mask" id="safetyModal">
+  <div class="mini-card">
+    <h3>安全小测 · 三秒钟判断</h3>
+    <p class="mini-lead">这三件事遇到时，你会怎么做？选完立刻知道对不对。</p>
+    <div class="safety-list" id="safetyList"></div>
+    <div class="mini-actions">
+      <span class="mini-score" id="safetyScore">0 / 3 题</span>
+      <button class="ghost-btn" id="safetyCloseBtn">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AI 小工坊：一次回答的四步接力（技术透明度展示） ===== -->
+<button class="orch-fab" id="orchFab" title="看看一次回答是怎么拼出来的（快捷键 `）">
+  <span class="orch-dot"></span>AI 怎么想
+</button>
+<aside class="orch-panel" id="orchPanel">
+  <div class="orch-head">
+    <div class="orch-head-row">
+      <span class="orch-live"></span>
+      <span class="orch-title">回应是怎么拼出来的</span>
+      <button class="orch-close" id="orchCloseBtn" title="关闭（`）">✕</button>
+    </div>
+    <div class="orch-sub" id="orchSub">等待第一次互动…</div>
+    <div class="orch-tabs">
+      <button class="orch-tab active" id="tabSwarm" data-tab="swarm">🌱 分工图</button>
+      <button class="orch-tab" id="tabFlow" data-tab="flow">📋 步骤</button>
+    </div>
+  </div>
+  <div class="orch-body" id="orchBody">
+    <!-- 标签页 1：蜂群结构图（默认） -->
+    <div class="orch-tabpane show" id="paneSwarm">
+      <div class="swarm-canvas" id="swarmCanvas">
+        <svg viewBox="0 0 440 210" id="swarmSvg" aria-label="回答接力分工图">
+          <g class="sw-edges">
+            <line class="sw-edge" data-edge="director-memory" x1="86"  y1="46" x2="142" y2="46"/>
+            <line class="sw-edge" data-edge="memory-judge"    x1="198" y1="46" x2="254" y2="46"/>
+            <line class="sw-edge" data-edge="judge-persona"   x1="310" y1="46" x2="366" y2="46"/>
+            <line class="sw-edge" data-edge="persona-gatekeeper" x1="394" y1="74" x2="394" y2="132"/>
+            <line class="sw-edge" data-edge="gatekeeper-summary" x1="366" y1="160" x2="310" y2="160"/>
+            <line class="sw-edge sw-loop" data-edge="gatekeeper-persona" x1="394" y1="132" x2="394" y2="74"/>
+          </g>
+          <g class="sw-nodes">
+            <g class="sw-node" data-node="director"    transform="translate(58,46)"><circle r="26"/><text class="sw-ico" y="-2">🎬</text><text class="sw-name" y="17">小导演</text></g>
+            <g class="sw-node" data-node="memory"      transform="translate(170,46)"><circle r="26"/><text class="sw-ico" y="-2">🧠</text><text class="sw-name" y="17">小记忆</text></g>
+            <g class="sw-node" data-node="judge"       transform="translate(282,46)"><circle r="26"/><text class="sw-ico" y="-2">⚖️</text><text class="sw-name" y="17">小判官</text></g>
+            <g class="sw-node" data-node="persona"     transform="translate(394,46)"><circle r="26"/><text class="sw-ico" y="-2">🎭</text><text class="sw-name" y="17">小演员</text></g>
+            <g class="sw-node" data-node="gatekeeper"  transform="translate(394,160)"><circle r="26"/><text class="sw-ico" y="-2">🛡️</text><text class="sw-name" y="17">小守卫</text></g>
+            <g class="sw-node" data-node="summary"     transform="translate(282,160)"><circle r="26"/><text class="sw-ico" y="-2">📦</text><text class="sw-name" y="17">小管家</text></g>
+          </g>
+        </svg>
+        <div class="sw-caption" id="swCaption">和人物说一句话，或点「▶ 演示」…</div>
+      </div>
+      <div class="sw-foot">
+        <button class="swarm-demo" id="swarmDemoBtn" title="播放一段示例接力（不消耗 API）">▶ 演示</button>
+        <span class="sw-foot-hint">小圆点 = 小助手 · 亮线 = 交给下一位 · 虚线 = 不合格就重写</span>
+      </div>
+    </div>
+    <!-- 标签页 2：文字流水 -->
+    <div class="orch-tabpane" id="paneFlow">
+      <p class="orch-empty" id="orchEmpty">在「AI发展史」里和人物说一句话，这里会实时显示四个小助手是怎么接力拼出一次回答的。</p>
+      <div id="orchFlowContent"></div>
+    </div>
+  </div>
+  <div class="orch-foot">
+    <span id="orchStat">主调用 0 次</span>
+    <span class="orch-foot-hint">按 ` 键开关</span>
+  </div>
+</aside>
+
+<!-- ===== 对话回溯面板（人狼村之谜式ログ） ===== -->
+<div class="log-modal" id="logModal">
+  <div class="log-card">
+    <div class="log-head">
+      <span class="log-title">📜 对话回溯</span>
+      <button class="log-close" id="logCloseBtn" title="关闭（L）">✕</button>
+    </div>
+    <div class="log-list" id="logList"></div>
+    <div class="log-foot" id="logFoot">还没有对话记录</div>
+  </div>
+</div>
+
+<script src="cloud-config.js?v=1"></script>
+<script src="story.js?v=32"></script>
+<script src="app.js?v=69"></script>
+<script src="spot.js?v=2"></script>
+<script src="hall.js?v=6"></script>
+<script src="switch.js?v=1" data-version="park"></script>
+<script>
+/* ---------- 昼夜模式切换胶囊按钮（默认夜间，记住选择） ---------- */
+(function(){
+  var KEY = 'dm-theme';
+  var root = document.documentElement;
+  var btn = document.createElement('button');
+  btn.id = 'themeFab';
+  btn.type = 'button';
+  var moon = '<svg class="tf-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.2 3.4a9 9 0 1 0 5.4 12.3A7.2 7.2 0 0 1 15.2 3.4Z"/></svg>';
+  var sun = '<svg class="tf-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.1" fill="currentColor" stroke="none"/><path d="M12 2.7v2.1M12 19.2v2.1M2.7 12h2.1M19.2 12h2.1M5.5 5.5l1.5 1.5M17 17l1.5 1.5M18.5 5.5L17 7M7 17l-1.5 1.5"/></svg>';
+  btn.innerHTML =
+    '<svg class="tf-constellation" viewBox="0 0 62 22" fill="none" stroke="rgba(255,222,150,.55)" stroke-width="1">' +
+      '<path d="M3 17 L14 5 L28 13 L42 3 L59 11"/>' +
+      '<circle cx="3" cy="17" r="1.6" fill="rgba(255,238,194,.9)" stroke="none"/>' +
+      '<circle cx="28" cy="13" r="1.6" fill="rgba(255,238,194,.9)" stroke="none"/>' +
+      '<circle cx="59" cy="11" r="1.6" fill="rgba(255,238,194,.9)" stroke="none"/>' +
+    '</svg>' +
+    '<span class="tf-star tf-s1"></span><span class="tf-star tf-s2"></span>' +
+    '<span class="tf-star tf-s3"></span><span class="tf-star tf-s4"></span>' +
+    '<span class="tf-bloom tf-b1"><svg width="12" height="12" viewBox="0 0 22 22"><g fill="none" stroke="#2fc79a" stroke-width="1.8"><circle cx="11" cy="6" r="2.6"/><circle cx="16" cy="11" r="2.6"/><circle cx="11" cy="16" r="2.6"/><circle cx="6" cy="11" r="2.6"/></g><circle cx="11" cy="11" r="2.2" fill="#ffc93c"/></svg></span>' +
+    '<span class="tf-bloom tf-b2"><svg width="10" height="10" viewBox="0 0 22 22"><g fill="none" stroke="#3d9df3" stroke-width="1.8"><circle cx="11" cy="6" r="2.6"/><circle cx="16" cy="11" r="2.6"/><circle cx="11" cy="16" r="2.6"/><circle cx="6" cy="11" r="2.6"/></g><circle cx="11" cy="11" r="2.2" fill="#ff6b4a"/></svg></span>' +
+    '<span class="tf-knob">' + moon + sun + '</span>';
+  function apply(t){
+    root.dataset.theme = t;
+    var day = (t === 'day');
+    var label = day ? '切换到夜间模式' : '切换到白天模式';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    try { localStorage.setItem(KEY, t); } catch(e){}
+  }
+  btn.addEventListener('click', function(){
+    root.classList.add('theme-xf');                 // 切换时启用平滑过渡
+    apply(root.dataset.theme === 'day' ? 'night' : 'day');
+    setTimeout(function(){ root.classList.remove('theme-xf'); }, 420);
+  });
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch(e){}
+  apply(saved === 'day' ? 'day' : 'night');         // 默认夜间
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>

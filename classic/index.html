@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FFF7E8">
+<title>豆苗时光机 · 亲历 AI 的七十年</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="../switch.css?v=3">
+</head>
+<body>
+
+<!-- 全站胶片颗粒 / 暗角（纯装饰） -->
+<div class="app-grain" aria-hidden="true"></div>
+<div class="app-vignette" aria-hidden="true"></div>
+
+<!-- ===================== 顶栏 ===================== -->
+<header class="topbar">
+  <a class="brand" href="#" onclick="return false;">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21v-7"/>
+        <path d="M12 14c-4.6 0-7.2-2.6-7.2-6.6C9.2 7.4 12 10 12 14Z"/>
+        <path d="M12 14c4.6 0 7.2-2.6 7.2-6.6C14.8 7.4 12 10 12 14Z"/>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <strong>豆苗时光机</strong>
+      <small>MUSEUM OF AI · 1950—2022</small>
+    </span>
+  </a>
+
+  <!-- 历史时间轴：随剧情点亮 -->
+  <nav class="timeline" id="timeline" aria-label="历史时间轴"></nav>
+
+  <div class="top-actions">
+    <button class="tab-btn" data-view="gate">大厅</button>
+    <button class="tab-btn" data-view="story">发展史</button>
+    <button class="tab-btn" data-view="tips">手账<span class="badge" id="tipsBadge">0</span></button>
+    <button class="tab-btn" data-view="kb">知识库</button>
+    <button class="tab-btn" data-view="lab">实验室</button>
+    <button class="tab-btn" data-view="spot">找茬馆</button>
+    <button class="tab-btn" data-view="graph">图谱</button>
+    <button class="api-entry" id="apiBtn" title="填入自己的 API Key，用你的模型驱动这个作品"><span class="api-dot"></span>API</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===================== 视图零：大门（海报式首屏） ===================== -->
+  <section id="view-gate" class="view active">
+
+    <div class="gate-hero">
+      <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="hero-kicker"><i></i>互动 AI 博物馆<span class="k-sep">·</span>1950 — 2022</span>
+
+          <h1 class="hero-title">
+            <span class="hero-brand">豆苗时光机</span>
+            <span class="hero-line">亲历 <em>AI</em> 的七十年</span>
+          </h1>
+
+          <p class="hero-lead">跟着水之子和小豆苗，去图灵的实验室、落雪的深夜，还有会下棋的电脑家里做客。每点亮一个词，小豆苗就长大一点。</p>
+
+          <div class="hero-actions">
+            <button class="primary-btn hero-cta" data-view="story">出发去探险 <span>→</span></button>
+            <button class="ghost-btn hero-ghost" data-view="kb">先逛知识库</button>
+            <button class="ghost-btn hero-ghost" data-chapter-picker aria-haspopup="dialog">🗺️ 自由选章</button>
+          </div>
+
+          <div class="hero-meta">
+            <span><b>08</b>历史现场</span>
+            <span><b>49</b>核心术语</span>
+            <span><b>70</b>年 AI 史</span>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-halo"></div>
+
+          <svg class="hero-scene" viewBox="0 0 560 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="hbSunG" cx="50%" cy="42%" r="58%">
+                <stop offset="0" stop-color="#FFF6C4"/>
+                <stop offset="1" stop-color="#FFC93C"/>
+              </radialGradient>
+              <linearGradient id="hbWinG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#EDF8FF"/>
+                <stop offset="1" stop-color="#A8D7FF"/>
+              </linearGradient>
+              <linearGradient id="hbBodyG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFFBF1"/>
+                <stop offset="1" stop-color="#FFEFD4"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 太阳（会慢慢转的光芒） -->
+            <g class="hb-sun">
+              <circle cx="424" cy="116" r="78" fill="#FFD65C" opacity=".2"/>
+              <g class="hb-rays" stroke="#F6C64A" stroke-width="6" stroke-linecap="round" opacity=".9">
+                <line x1="424" y1="40" x2="424" y2="22"/>
+                <line x1="424" y1="192" x2="424" y2="210"/>
+                <line x1="348" y1="116" x2="330" y2="116"/>
+                <line x1="500" y1="116" x2="518" y2="116"/>
+                <line x1="370" y1="62" x2="356" y2="48"/>
+                <line x1="478" y1="62" x2="492" y2="48"/>
+                <line x1="370" y1="170" x2="356" y2="184"/>
+                <line x1="478" y1="170" x2="492" y2="184"/>
+              </g>
+              <circle cx="424" cy="116" r="60" fill="url(#hbSunG)" stroke="#E9AE36" stroke-width="2.5"/>
+              <path d="M404 110q7 9 14 0" stroke="#8A5A18" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+              <path d="M434 110q7 9 14 0" stroke="#8A5A18" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+              <path d="M410 132q14 13 28 0" stroke="#8A5A18" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+              <circle cx="396" cy="126" r="6" fill="#FF9C7A" opacity=".55"/>
+              <circle cx="452" cy="126" r="6" fill="#FF9C7A" opacity=".55"/>
+            </g>
+
+            <!-- 云朵 -->
+            <g class="hb-cloud c1" fill="#FFFFFF" stroke="#D6E7F5" stroke-width="2">
+              <ellipse cx="104" cy="148" rx="56" ry="25"/>
+              <ellipse cx="150" cy="136" rx="40" ry="29"/>
+              <ellipse cx="58" cy="158" rx="32" ry="19"/>
+            </g>
+            <g class="hb-cloud c2" fill="#FFFFFF" stroke="#D6E7F5" stroke-width="2">
+              <ellipse cx="352" cy="252" rx="42" ry="19"/>
+              <ellipse cx="388" cy="242" rx="30" ry="22"/>
+            </g>
+
+            <!-- 小鸟 -->
+            <g stroke="#7D93AC" stroke-width="2.2" stroke-linecap="round" fill="none">
+              <path d="M312 168q9-9 18 0q9-9 18 0"/>
+              <path d="M250 128q7-7 14 0q7-7 14 0"/>
+            </g>
+
+            <!-- 彩旗 -->
+            <path d="M46 214q96 44 196 6" stroke="#2C3E57" stroke-width="2" fill="none"/>
+            <path d="M62 224l16 2-5 24z" fill="#FF8A6B"/>
+            <path d="M98 234l16 1-4 24z" fill="#FFD35A"/>
+            <path d="M134 239l15 0-3 24z" fill="#7FD8B2"/>
+            <path d="M170 238l15-1-2 24z" fill="#8FC5FF"/>
+            <path d="M206 232l14-2-1 24z" fill="#FFAFCF"/>
+
+            <!-- 纸飞机与虚线航迹 -->
+            <path d="M182 330q-56-46-4-78t92-34" stroke="#FFB48F" stroke-width="2" stroke-dasharray="4 7" stroke-linecap="round" fill="none"/>
+            <g class="hb-plane">
+              <path d="M268 206l54-16-30 34z" fill="#FFFFFF" stroke="#2C3E57" stroke-width="2.2" stroke-linejoin="round"/>
+              <path d="M268 206l24 18-8 14z" fill="#CBE7FF" stroke="#2C3E57" stroke-width="2.2" stroke-linejoin="round"/>
+            </g>
+
+            <!-- 小山 -->
+            <path d="M28 566c36-52 110-76 232-76s210 24 250 76z" fill="#CDEDD3"/>
+            <path d="M28 566c36-52 110-76 232-76v76z" fill="#BCE6C6"/>
+
+            <!-- 博物馆台阶 -->
+            <rect x="150" y="474" width="256" height="18" rx="9" fill="#FFEBCB" stroke="#2C3E57" stroke-width="2"/>
+            <rect x="132" y="490" width="292" height="18" rx="9" fill="#FFE2B8" stroke="#2C3E57" stroke-width="2"/>
+            <rect x="112" y="506" width="332" height="18" rx="9" fill="#FFD9A8" stroke="#2C3E57" stroke-width="2"/>
+
+            <!-- 主楼 -->
+            <rect x="118" y="286" width="324" height="192" rx="16" fill="url(#hbBodyG)" stroke="#2C3E57" stroke-width="2.6"/>
+            <path d="M98 288L280 200l182 88z" fill="#FF8A6B" stroke="#2C3E57" stroke-width="2.6" stroke-linejoin="round"/>
+            <path d="M132 288L280 222l148 66z" fill="#FFC6AE"/>
+            <path d="M280 200v-26" stroke="#2C3E57" stroke-width="2.6"/>
+            <path d="M280 174l4-4 5 8 9 1-6 7 2 9-8-4-8 4 2-9-6-7 9-1z" fill="#FFD35A" stroke="#2C3E57" stroke-width="1.6"/>
+
+            <!-- 门面钟 -->
+            <circle cx="280" cy="262" r="36" fill="#FFFDF6" stroke="#2C3E57" stroke-width="2.6"/>
+            <circle cx="280" cy="262" r="28" fill="none" stroke="#F0D9B6" stroke-width="1.6"/>
+            <path d="M280 262V238" stroke="#FF7A5C" stroke-width="4" stroke-linecap="round"/>
+            <path d="M280 262l18 12" stroke="#2C3E57" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="280" cy="262" r="4" fill="#2C3E57"/>
+
+            <!-- 拱窗 -->
+            <path d="M152 388V342a32 32 0 0 1 64 0V388Z" fill="url(#hbWinG)" stroke="#2C3E57" stroke-width="2.4"/>
+            <path d="M216 388V342a32 32 0 0 1 64 0V388Z" fill="url(#hbWinG)" stroke="#2C3E57" stroke-width="2.4"/>
+            <path d="M184 316v72M152 352h64" stroke="#FFFFFF" stroke-width="2" opacity=".75"/>
+            <path d="M248 316v72M216 352h64" stroke="#FFFFFF" stroke-width="2" opacity=".75"/>
+            <path d="M152 388h128" stroke="#2C3E57" stroke-width="2.4"/>
+
+            <!-- 门 -->
+            <path d="M252 478V356a28 28 0 0 1 56 0V478Z" fill="#FFD79E" stroke="#2C3E57" stroke-width="2.4"/>
+            <circle cx="298" cy="370" r="3.4" fill="#2C3E57"/>
+            <rect x="238" y="300" width="84" height="22" rx="11" fill="#2C3E57"/>
+            <text x="280" y="315" text-anchor="middle" font-size="11" fill="#FFF6E2" letter-spacing="2">时光机</text>
+
+            <!-- 左右小树 -->
+            <g>
+              <rect x="76" y="486" width="9" height="34" rx="4" fill="#B98A5E" stroke="#2C3E57" stroke-width="2"/>
+              <circle cx="80" cy="466" r="26" fill="#7FD8A8" stroke="#2C3E57" stroke-width="2"/>
+              <circle cx="62" cy="478" r="16" fill="#94E1B8" stroke="#2C3E57" stroke-width="2"/>
+              <circle cx="98" cy="478" r="16" fill="#94E1B8" stroke="#2C3E57" stroke-width="2"/>
+            </g>
+            <g>
+              <rect x="474" y="486" width="9" height="34" rx="4" fill="#B98A5E" stroke="#2C3E57" stroke-width="2"/>
+              <circle cx="478" cy="466" r="26" fill="#7FD8A8" stroke="#2C3E57" stroke-width="2"/>
+              <circle cx="460" cy="478" r="16" fill="#94E1B8" stroke="#2C3E57" stroke-width="2"/>
+              <circle cx="496" cy="478" r="16" fill="#94E1B8" stroke="#2C3E57" stroke-width="2"/>
+            </g>
+
+            <!-- 小豆苗 -->
+            <g class="hb-mascot">
+              <path d="M188 416c-12-18-24-24-40-26 4 18 16 28 36 32z" fill="#6BCB8F" stroke="#2C3E57" stroke-width="2"/>
+              <path d="M190 416c10-18 22-26 38-28-2 18-14 30-34 34z" fill="#8EDCA8" stroke="#2C3E57" stroke-width="2"/>
+              <path d="M189 448V420" stroke="#4FAF78" stroke-width="5" stroke-linecap="round"/>
+              <path d="M168 452c0-28 8-42 20-42s20 14 20 42c0 24-8 38-20 38s-20-14-20-38Z" fill="#A8E6BE" stroke="#2C3E57" stroke-width="2.2"/>
+              <circle cx="180" cy="444" r="4.6" fill="#2C3E57"/>
+              <circle cx="200" cy="444" r="4.6" fill="#2C3E57"/>
+              <circle cx="181.6" cy="442.4" r="1.6" fill="#FFFFFF"/>
+              <circle cx="201.6" cy="442.4" r="1.6" fill="#FFFFFF"/>
+              <path d="M182 460q8 8 16 0" stroke="#2C3E57" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+              <circle cx="172" cy="455" r="4.2" fill="#FFB0B0" opacity=".65"/>
+              <circle cx="208" cy="455" r="4.2" fill="#FFB0B0" opacity=".65"/>
+              <path d="M170 452l-16-26" stroke="#2C3E57" stroke-width="2.4" stroke-linecap="round"/>
+              <circle cx="153" cy="424" r="5.5" fill="#A8E6BE" stroke="#2C3E57" stroke-width="2"/>
+              <path d="M210 456l20 8" stroke="#2C3E57" stroke-width="2.4" stroke-linecap="round"/>
+              <circle cx="232" cy="465" r="5.5" fill="#A8E6BE" stroke="#2C3E57" stroke-width="2"/>
+              <ellipse cx="181" cy="490" rx="8" ry="4" fill="#7FD8A8" stroke="#2C3E57" stroke-width="1.8"/>
+              <ellipse cx="200" cy="490" rx="8" ry="4" fill="#7FD8A8" stroke="#2C3E57" stroke-width="1.8"/>
+            </g>
+
+            <!-- 热气球 -->
+            <g class="hb-balloon">
+              <path d="M468 292V366" stroke="#2C3E57" stroke-width="1.4" stroke-dasharray="4 4"/>
+              <ellipse cx="468" cy="304" rx="38" ry="46" fill="#FF9E80" stroke="#2C3E57" stroke-width="2.4"/>
+              <path d="M468 258c-12 12-18 26-18 46s6 34 18 46" stroke="#FFD35A" stroke-width="9" fill="none" stroke-linecap="round"/>
+              <path d="M446 344h44l-6 24h-32z" fill="#E4A53B" stroke="#2C3E57" stroke-width="2.2"/>
+              <path d="M446 344l-6 8M490 344l6 8" stroke="#2C3E57" stroke-width="1.4"/>
+            </g>
+
+            <!-- 草地小花 -->
+            <g stroke="#2C3E57" stroke-width="1.4">
+              <circle cx="236" cy="546" r="4" fill="#FFD35A"/>
+              <circle cx="324" cy="552" r="4" fill="#FFAFCF"/>
+              <circle cx="352" cy="540" r="3.4" fill="#FFD35A"/>
+              <circle cx="208" cy="558" r="3.4" fill="#FFAFCF"/>
+            </g>
+          </svg>
+
+          <span class="float-year fy1">1950</span>
+          <span class="float-year fy2">1975</span>
+          <span class="float-year fy3">1997</span>
+          <span class="float-year fy4">2016</span>
+          <span class="float-year fy5">2022</span>
+          <span class="art-caption">豆苗号 · 时光机</span>
+        </div>
+      </div>
+
+      <div class="hero-scroll">
+        <span></span>
+        <em>往下看看 · 四扇门</em>
+      </div>
+    </div>
+
+    <!-- 四扇门：编辑式分栏，而非卡片墙 -->
+    <div class="gate-doors">
+      <div class="doors-head">
+        <span class="mono-label">DOORS · 01 — 04</span>
+        <h2>选一扇门，今天想去哪儿？</h2>
+      </div>
+
+      <div class="gate-grid">
+        <div class="gate-card open" data-goto="story">
+          <span class="gate-index">01</span>
+          <div class="gate-body">
+            <h3>AI 发展史</h3>
+            <p>坐时光机亲历七十年：图灵的游戏、达特茅斯会议、深蓝与 AlphaGo——你的选择会改变经历。</p>
+            <div class="gate-tags">
+              <span class="gate-tag open-tag">已开放</span>
+              <span class="gate-tag ghost-tag">10 章 · 8 个历史现场</span>
+            </div>
+          </div>
+          <span class="gate-arrow">→</span>
+        </div>
+
+        <div class="gate-card open" data-goto="kb">
+          <span class="gate-index">02</span>
+          <div class="gate-body">
+            <h3>AI 知识库</h3>
+            <p>冒险中点亮的每个术语，在这里都能读到体系化的完整故事，还能顺着相关概念继续走。</p>
+            <div class="gate-tags">
+              <span class="gate-tag open-tag">已开放</span>
+              <span class="gate-tag ghost-tag">可全文搜索</span>
+            </div>
+          </div>
+          <span class="gate-arrow">→</span>
+        </div>
+
+        <div class="gate-card open" data-goto="lab">
+          <span class="gate-index">03</span>
+          <div class="gate-body">
+            <h3>AI 实验室</h3>
+            <p>亲手调教一台 1957 年的感知机：喂它数据、给它算力，看它学会分甜果和酸果。</p>
+            <div class="gate-tags">
+              <span class="gate-tag open-tag">已开放</span>
+              <span class="gate-tag ghost-tag">可动手实验</span>
+            </div>
+          </div>
+          <span class="gate-arrow">→</span>
+        </div>
+
+        <div class="gate-card open" data-goto="spot">
+          <span class="gate-index">04</span>
+          <div class="gate-body">
+            <h3>AI 找茬馆</h3>
+            <p>放大眼睛看仔细：火车顶上的轮子、长翅膀的行李箱、烤箱里的球鞋……把画里和现实不符的地方全点出来才能通关，卡住了可以要提示。</p>
+            <div class="gate-tags">
+              <span class="gate-tag open-tag">已开放</span>
+              <span class="gate-tag ghost-tag">10 幅场景 · 每幅 3—4 处</span>
+            </div>
+          </div>
+          <span class="gate-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 视图一：ADV 冒险 ===================== -->
+  <section id="view-story" class="view">
+    <div class="stage" id="stage" data-scene="museum">
+
+      <!-- 场景底色（随章节变色） -->
+      <div class="stage-bg" aria-hidden="true">
+        <div class="stage-beam"></div>
+        <div class="stage-glow"></div>
+        <div class="stage-grain"></div>
+      </div>
+
+      <!-- 章节衔接：黑场标题卡 -->
+      <div class="chapter-card" id="chapterCard">
+        <span class="cc-kicker">—— 时空跳转 ——</span>
+        <div class="cc-title" id="ccTitle"></div>
+        <div class="cc-time" id="ccTime"></div>
+        <span class="cc-line"></span>
+      </div>
+
+      <!-- 画面区：章节条 + CG 影像 + 角色 -->
+      <div class="scene-zone">
+        <div class="scene-top">
+          <div class="chapter-chip">
+            <span class="chip-dot"></span>
+            <div class="chip-text">
+              <strong id="chapterTitle">序章</strong>
+              <em id="chapterTime">现在</em>
+            </div>
+          </div>
+          <div class="scene-tools">
+            <button class="tool-btn" data-chapter-picker aria-haspopup="dialog" title="自由选择章节">🗺️ 选章</button>
+            <button class="tool-btn mode-btn" id="modeBtn" title="切换编排模式（流水线 / Swarm）">⚙️ 流水线</button>
+            <button class="tool-btn log-btn" id="logBtn" title="查看对话回溯（快捷键 L）">📜 回溯</button>
+          </div>
+        </div>
+
+        <div class="scene-stage">
+          <!-- CG：本章的历史影像常驻画面区 -->
+          <figure class="cg-frame" id="cgFrame" data-cg="museum">
+            <div class="cg-media" id="cgMedia"></div>
+            <div class="cg-tone"></div>
+            <div class="cg-shade"></div>
+            <div class="cg-grain"></div>
+            <div class="cg-scan"></div>
+            <div class="cg-year" id="cgWatermark">2022</div>
+            <figcaption class="cg-caption">
+              <span class="cg-kicker">历史档案 <b id="cgYear">2022</b></span>
+              <strong id="cgName">时光机展厅</strong>
+              <em id="cgMeta">科技博物馆 · 闭馆之后</em>
+            </figcaption>
+            <span class="cg-corner tl"></span>
+            <span class="cg-corner br"></span>
+          </figure>
+
+          <!-- 水之子桌宠：小头像浮动，点击展开立绘并聊天 -->
+          <div class="pet" id="pet">
+            <div class="pet-halo" aria-hidden="true"></div>
+            <div class="pet-mini">💧</div>
+            <img class="pet-img" src="../assets/shuizhizi_cut.png" alt="水之子" draggable="false">
+            <div class="pet-bubble" id="petBubble">点我和水之子聊天～</div>
+            <div class="pet-name">水之子</div>
+            <div class="pet-level" id="petLevel">🌱 小豆苗 Lv.1 种子</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 对话框：独立于画面区，不压 CG -->
+      <div class="adv-dock">
+        <div class="dialogue-box" id="dialogueBox">
+          <div class="dlg-head">
+            <div class="speaker" id="speaker">旁白</div>
+            <div class="cast-bar" id="castBar"></div>
+            <span class="dlg-hint"><b>点一下</b> / <kbd>空格</kbd> 往下走 · 亮词能点开看</span>
+          </div>
+
+          <p class="story-text" id="storyText"></p>
+
+          <div class="dlg-foot">
+            <span class="dlg-brand">豆苗时光机<span>/</span>MUSEUM OF AI</span>
+            <button class="next-btn" id="nextBtn">往下看 ▼</button>
+          </div>
+        </div>
+
+        <!-- 行动区：选项 / 提问 / 小游戏都放这里，不再塞进对话框 -->
+        <div class="choice-deck" id="choices" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 视图二：术语手账 ===================== -->
+  <section id="view-tips" class="view">
+    <div class="view-head">
+      <div class="view-head-main">
+        <span class="view-kicker">GLOSSARY / 收集</span>
+        <h2 class="view-title">术语手账 <small>冒险里点亮的词，都会收进这里</small></h2>
+      </div>
+      <span class="view-note">点击任意一张 · 展开完整知识</span>
+    </div>
+    <div class="sticker-shelf" id="stickerShelf" hidden></div>
+    <div class="tips-grid" id="tipsGrid"></div>
+    <p class="empty-hint" id="tipsEmpty">还没有收集到术语卡，回到冒险里点亮闪闪发光的词吧！</p>
+  </section>
+
+  <!-- ===================== 视图三：知识库 ===================== -->
+  <section id="view-kb" class="view">
+    <div class="view-head">
+      <div class="view-head-main">
+        <span class="view-kicker">KNOWLEDGE BASE / 体系</span>
+        <h2 class="view-title">AI 知识库 <small>体系化的完整内容 · 点开词条读全文</small></h2>
+      </div>
+      <span class="view-note">按时间与主题分组</span>
+    </div>
+
+    <div class="kb-toolbar">
+      <label class="kb-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="kb-search" id="kbSearch" placeholder="搜索词条，如：神经网络">
+      </label>
+      <div class="kb-cats" id="kbCats"></div>
+    </div>
+
+    <div class="kb-list" id="kbList"></div>
+  </section>
+
+  <!-- ===================== 视图四：AI 实验室 ===================== -->
+  <section id="view-lab" class="view">
+    <div class="view-head">
+      <div class="view-head-main">
+        <span class="view-kicker">LABORATORY / 动手</span>
+        <h2 class="view-title">AI 实验室 <small>亲手调教一台感知机——看数据、算法、算力怎么配合</small></h2>
+      </div>
+      <span class="view-note">实验 01 · 感知机 1957</span>
+    </div>
+
+    <div class="lab-grid">
+      <div class="lab-card lab-main">
+        <div class="lab-card-head">
+          <h3>训练场 · 甜果还是酸果？</h3>
+          <span class="lab-hint-tag">感知机 · AI 的祖师爷</span>
+        </div>
+        <p class="lab-desc">果园送来一批水果：横坐标是「颜色深浅」，纵坐标是「个头大小」。你的任务：教一台小机器画出一条分界线，把甜的（🍎）和酸的（🍋）分开。</p>
+        <div class="lab-canvas-wrap"><canvas id="labCanvas" width="640" height="420"></canvas></div>
+        <div class="lab-toolbar">
+          <button class="lab-btn active" id="labAddSweet">🍎 加甜果</button>
+          <button class="lab-btn" id="labAddSour">🍋 加酸果</button>
+          <button class="lab-btn primary" id="labTrain">▶ 开始训练</button>
+          <button class="lab-btn" id="labTest">🎯 考试</button>
+          <button class="lab-btn ghost" id="labReset">↺ 重置</button>
+        </div>
+        <p class="lab-tip" id="labHint">点「加甜果 / 加酸果」，再点训练场，就能亲手添加样本。样本越多，机器学得越稳。</p>
+      </div>
+
+      <div class="lab-side">
+        <div class="lab-card">
+          <div class="lab-card-head"><h3>仪表盘</h3></div>
+          <div class="lab-meters">
+            <div class="lab-meter"><span class="lm-label">📊 准确率</span><span class="lm-value" id="labAcc">—</span></div>
+            <div class="lab-meter"><span class="lm-label">🔁 训练轮次</span><span class="lm-value" id="labEpoch">0</span></div>
+            <div class="lab-meter"><span class="lm-label">🍎 数据（样本数）</span><span class="lm-value" id="labSamples">0</span></div>
+          </div>
+          <div class="lab-power">
+            <span class="lm-label">⚡ 算力（每步训练速度）</span>
+            <div class="lab-power-btns" id="labPower">
+              <button data-p="1">慢</button><button data-p="6" class="active">中</button><button data-p="20">快</button>
+            </div>
+          </div>
+          <div class="lab-status" id="labStatus">准备就绪：先加几个水果，再点「开始训练」。</div>
+        </div>
+        <div class="lab-card">
+          <div class="lab-card-head"><h3>小课堂 · 它是怎么学的？</h3></div>
+          <ol class="lab-lesson">
+            <li><b>打分：</b>机器给每个水果算分：颜色 × 权重A + 大小 × 权重B + 门槛。分高判甜，分低判酸。</li>
+            <li><b>改错：</b>判错了，就把权重往正确方向挪一点点——这一挪，就是「学习」。</li>
+            <li><b>配合：</b>数据是粮食，算法是胃，算力是发动机。三个好朋友齐了，AI 才跑得快。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 视图六：找茬馆 ===================== -->
+  <section id="view-spot" class="view">
+    <div class="view-head">
+      <div class="view-head-main">
+        <span class="view-kicker">FIND THE MISTAKE / 观察</span>
+        <h2 class="view-title">找茬馆 <small>AI 也会看错——你能比它先发现吗？</small></h2>
+      </div>
+      <span class="view-note" id="spotNote">题库 3 幅 · 随机抽题</span>
+    </div>
+
+    <div class="spot-card">
+      <div class="spot-bar">
+        <div class="spot-meta">
+          <span class="spot-badge" id="spotDiffTag">★☆☆</span>
+          <div class="spot-titles">
+            <h3 id="spotTitle">早餐桌的怪事</h3>
+            <p id="spotSub">1950 · 曼彻斯特的厨房</p>
+          </div>
+        </div>
+        <div class="spot-score"><span>已找到</span><b id="spotFound">0</b><i>/</i><b id="spotTotal">4</b></div>
+        <div class="spot-actions">
+          <button class="spot-btn hint" id="spotHint">💡 提示</button>
+          <button class="spot-btn" id="spotNext">🔄 换一幅</button>
+        </div>
+      </div>
+      <div class="spot-stage" id="spotStage" aria-live="polite"></div>
+      <div class="spot-foot">
+        <div class="spot-dots" id="spotDots" aria-hidden="true"></div>
+        <p class="spot-tip" id="spotTip">画里有 4 处和现实不符，点它们找出来。</p>
+      </div>
+      <div class="spot-result" id="spotResult"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 视图五：知识图谱 ===================== -->
+  <section id="view-graph" class="view">
+    <div class="view-head">
+      <div class="view-head-main">
+        <span class="view-kicker">KNOWLEDGE GRAPH / 连接</span>
+        <h2 class="view-title">AI 知识图谱 <small>点一点节点，看概念之间怎么连起来</small></h2>
+      </div>
+      <span class="view-note">双击空白 · 回到中心</span>
+    </div>
+
+    <div class="graph-legend" id="graphLegend"></div>
+    <div class="graph-wrap">
+      <svg id="graphSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <p class="graph-hint">单击周围概念 → 以它为中心展开；单击中心或双击任意节点 → 查看知识卡片；双击空白 → 回到「人工智能」。</p>
+  </section>
+
+</main>
+
+<!-- ===================== tips 弹窗 ===================== -->
+<div class="modal-mask" id="tipsModal">
+  <div class="tips-card">
+    <div class="modal-head">
+      <span class="modal-icon">💡</span>
+      <span class="modal-kicker">TERM CARD / 术语卡</span>
+    </div>
+    <div class="swarm-flow" id="swarmFlow" title="多智能体协作流水线">
+      <span>🔍抽取</span><i>→</i><span>📚检索</span><i>→</i><span>✏️改写</span><i>→</i><span>🛡️校验</span>
+    </div>
+    <h3 id="tipsTerm">术语</h3>
+    <p id="tipsBrief"></p>
+    <div class="tips-actions">
+      <button class="primary-btn" id="tipsDeepBtn">📖 深入了解</button>
+      <button class="ghost-btn" id="tipsCloseBtn">继续冒险</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 知识文章弹窗 ===================== -->
+<div class="modal-mask" id="kbModal">
+  <div class="kb-card">
+    <div class="kb-head">
+      <div>
+        <span class="modal-kicker">KNOWLEDGE</span>
+        <h3 id="kbTerm"></h3>
+      </div>
+      <span class="kb-meta" id="kbMeta"></span>
+    </div>
+    <div class="kb-body" id="kbBody"></div>
+    <div class="kb-example" id="kbExample"></div>
+    <div class="kb-related-box">
+      <div class="kb-related-label">相关概念</div>
+      <div id="kbRelated" class="kb-related-list"></div>
+    </div>
+    <button class="ghost-btn" id="kbCloseBtn">关闭</button>
+  </div>
+</div>
+
+<!-- ===================== 水之子聊天面板 ===================== -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <span class="chat-avatar">💧</span>
+    <div class="chat-title"><b>水之子</b><em>有问题随时问我</em></div>
+    <button id="chatCloseBtn">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="问问我…" maxlength="200">
+    <button id="chatSendBtn">发送</button>
+  </div>
+  <div class="chat-status" id="chatStatus"></div>
+</div>
+
+<!-- ===================== API Key 设置弹窗 ===================== -->
+<div class="modal-mask" id="apiModal">
+  <div class="api-card">
+    <div class="modal-head">
+      <span class="modal-icon">🔑</span>
+      <span class="modal-kicker">CONNECTION</span>
+    </div>
+    <h3>接入你自己的 AI</h3>
+    <p class="api-lead">填入你的阿里云百炼 API Key，这个作品就会用你的模型来生成剧情回应和水之子的回答。Key 只保存在本机服务端，网页代码和访客浏览器都看不到。</p>
+    <div class="api-status" id="apiStatus">读取中……</div>
+
+    <label class="api-label" for="apiKeyInput">API Key</label>
+    <input id="apiKeyInput" class="api-input" type="password" placeholder="sk-……（粘贴后不会显示在页面上）" autocomplete="off" spellcheck="false">
+
+    <label class="api-label" for="apiModelInput">模型（可留空，默认 qwen-flash 最快）</label>
+    <input id="apiModelInput" class="api-input" list="apiModelList" placeholder="qwen-flash" autocomplete="off" spellcheck="false">
+    <datalist id="apiModelList">
+      <option value="qwen-flash"></option>
+      <option value="qwen-turbo"></option>
+      <option value="qwen-plus"></option>
+      <option value="qwen-max"></option>
+      <option value="qwen-long"></option>
+    </datalist>
+
+    <div class="api-actions">
+      <button class="primary-btn" id="apiSaveBtn">保存并启用</button>
+      <button class="ghost-btn" id="apiTestBtn">测试连接</button>
+    </div>
+    <div class="api-links">
+      <button class="api-link" id="apiClearBtn">清除本机保存的 Key</button>
+      <button class="api-link" id="apiCloseBtn">关闭</button>
+    </div>
+    <div class="api-tip" id="apiTip">没有 Key？到阿里云百炼控制台创建一个再粘贴进来；不填也能离线玩完整个冒险。</div>
+  </div>
+</div>
+
+<!-- ===================== 章节选择弹窗 ===================== -->
+<div class="modal-mask" id="chapterModal">
+  <div class="chapter-pick">
+    <div class="cp-head">
+      <div class="cp-head-main">
+        <span class="modal-kicker">TIME MACHINE / 时空跳转</span>
+        <h3>想去哪一年？</h3>
+        <p class="cp-lead">每一章都能单独开始。坐进时光机，直接从任意一个历史现场出发。</p>
+      </div>
+      <button class="cp-close" id="chapterCloseBtn" title="关闭" aria-label="关闭">✕</button>
+    </div>
+    <div class="cp-progress" id="chapterProgress"></div>
+    <div class="cp-list" id="chapterList"></div>
+    <div class="cp-foot">
+      <span class="cp-hint">点击章节卡，从这一章的开头开始 · 去过的章节会打勾</span>
+      <button class="ghost-btn" id="chapterBackBtn">继续当前故事</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 多 Agent 协作面板 ===================== -->
+<button class="orch-fab" id="orchFab" title="查看多 Agent 协作流水（快捷键 `）">
+  <span class="orch-dot"></span>AGENT 协作
+</button>
+<aside class="orch-panel" id="orchPanel">
+  <div class="orch-head">
+    <div class="orch-head-row">
+      <span class="orch-live"></span>
+      <span class="orch-title">AGENT ORCHESTRATOR</span>
+      <button class="orch-close" id="orchCloseBtn" title="关闭（`）">✕</button>
+    </div>
+    <div class="orch-sub" id="orchSub">等待第一次互动…</div>
+  </div>
+  <div class="orch-body" id="orchBody">
+    <p class="orch-empty" id="orchEmpty">在「AI发展史」里和人物说一句话，这里会实时显示导演 / 记忆 / 判定 / 人物 / 守门 / 汇总六个 Agent 是怎么接力完成一次回应的。</p>
+  </div>
+  <div class="orch-foot">
+    <span id="orchStat">主调用 0 次</span>
+    <span class="orch-foot-hint">按 ` 键开关</span>
+  </div>
+</aside>
+
+<!-- ===================== 对话回溯面板 ===================== -->
+<div class="log-modal" id="logModal">
+  <div class="log-card">
+    <div class="log-head">
+      <div>
+        <span class="modal-kicker">BACKLOG</span>
+        <span class="log-title">对话回溯</span>
+      </div>
+      <button class="log-close" id="logCloseBtn" title="关闭（L）">✕</button>
+    </div>
+    <div class="log-list" id="logList"></div>
+    <div class="log-foot" id="logFoot">还没有对话记录</div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="story.js?v=22"></script>
+<script src="fx.js?v=19"></script>
+<script src="games.js?v=7"></script>
+<script src="app.js?v=35"></script>
+<script src="lab.js?v=4"></script>
+<script src="spot.js?v=5"></script>
+<script src="../switch.js?v=1" data-version="classic"></script>
+</body>
+</html>
+
+

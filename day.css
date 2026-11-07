@@ -1,0 +1,669 @@
+﻿/* =====================================================================
+   day.css —— 白天模式「晴天的科学乐园」
+   在 night.css 之后加载；只在 <html data-theme="day"> 下生效。
+   原则：night.css 与内容零改动；封面视频 / 剧情 CG / 时空画廊等
+        「场景层」保持原样，只换 UI 配色（顶栏/卡片/对话框/按钮…）。
+   色板取自协作包白天版：奶油纸底 + 墨蓝描边 + 阳光黄 + 珊瑚红。
+   ===================================================================== */
+
+/* ---------- 昼夜切换胶囊按钮（两种模式通用，右下角，与 AGENT 按钮同一基线） ---------- */
+#themeFab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 9600;
+  width: 140px; height: 38px; padding: 0; box-sizing: border-box;
+  border-radius: 999px; cursor: pointer; overflow: hidden;
+  border: 2px solid rgba(255, 201, 60, .55);
+  background:
+    radial-gradient(70px 46px at 76% 50%, rgba(255, 201, 60, .20), transparent 72%),
+    linear-gradient(158deg, #0a1524 0%, #132238 58%, #0d1a2b 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 6px 18px rgba(15, 23, 42, .18);
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .2s ease;
+}
+#themeFab:hover { transform: translateY(-2px); }
+#themeFab:focus-visible { outline: 3px solid #c08a34; outline-offset: 3px; }
+
+/* 夜间：星尘与星座线 */
+#themeFab .tf-star {
+  position: absolute; border-radius: 50%; background: #ffeec2;
+  box-shadow: 0 0 6px rgba(255, 222, 150, .95);
+  transition: opacity .3s ease;
+  animation: tfTw 3.6s ease-in-out infinite;
+}
+#themeFab .tf-s1 { width: 3px; height: 3px; left: 16px; top: 9px; }
+#themeFab .tf-s2 { width: 2px; height: 2px; left: 30px; top: 24px; animation-delay: 1.1s; }
+#themeFab .tf-s3 { width: 2px; height: 2px; left: 48px; top: 10px; animation-delay: .5s; }
+#themeFab .tf-s4 { width: 3px; height: 3px; left: 62px; top: 25px; animation-delay: 1.9s; }
+@keyframes tfTw { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+#themeFab .tf-constellation {
+  position: absolute; left: 10px; top: 8px; width: 62px; height: 22px;
+  opacity: .45; transition: opacity .3s ease;
+}
+
+/* 白天：小花 */
+#themeFab .tf-bloom { position: absolute; opacity: 0; transition: opacity .3s ease; }
+#themeFab .tf-b1 { right: 26px; top: 7px; }
+#themeFab .tf-b2 { right: 14px; bottom: 7px; }
+
+/* 滑块 */
+#themeFab .tf-knob {
+  position: absolute; left: 5px; top: 50%; width: 26px; height: 26px;
+  margin-top: -13px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 34% 28%, #22375a 0%, #16243c 58%, #0d182a 100%);
+  border: 2px solid #ffc93c;
+  box-shadow: 0 0 14px rgba(255, 201, 60, .4), inset 0 1px 0 rgba(255, 255, 255, .18);
+  transform: translateY(0) translateX(100px);
+  transition: transform .27s cubic-bezier(.34, 1.28, .64, 1), background .24s ease,
+              border-color .24s ease, box-shadow .24s ease;
+}
+#themeFab .tf-knob svg { width: 16px; height: 16px; display: block; }
+#themeFab .tf-moon { color: #ffc93c; }
+#themeFab .tf-sun { color: #f0a500; display: none; }
+
+/* 白天态 */
+html[data-theme="day"] #themeFab {
+  border-color: #22344d;
+  background:
+    radial-gradient(74px 50px at 24% 50%, rgba(255, 201, 60, .36), transparent 74%),
+    radial-gradient(64px 46px at 92% 16%, rgba(61, 157, 243, .16), transparent 70%),
+    linear-gradient(168deg, #fffdf7 0%, #fff7e8 58%, #fdeed6 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 4px 14px rgba(120, 100, 60, .16);
+}
+html[data-theme="day"] #themeFab .tf-star,
+html[data-theme="day"] #themeFab .tf-constellation { opacity: 0; animation: none; }
+html[data-theme="day"] #themeFab .tf-bloom { opacity: 1; }
+html[data-theme="day"] #themeFab .tf-knob {
+  transform: translateY(0) translateX(0);
+  background: radial-gradient(circle at 36% 26%, #ffffff 0%, #fff6e2 62%, #ffe9bb 100%);
+  border-color: #22344d;
+  box-shadow: 0 0 12px rgba(255, 201, 60, .45), 0 3px 0 rgba(34, 52, 77, .18),
+              inset 0 1px 0 rgba(255, 255, 255, .95);
+}
+html[data-theme="day"] #themeFab .tf-moon { display: none; }
+html[data-theme="day"] #themeFab .tf-sun { display: block; }
+
+@media (max-width: 720px) {
+  #themeFab { right: 12px; bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #themeFab .tf-star { animation: none; }
+}
+
+/* ---------- 白天令牌：把 night.css 的暗色令牌整体换回「纸质阳光」 ---------- */
+html[data-theme="day"] {
+  --bg: #fff7e8;
+  --card: rgba(255, 253, 248, .62);          /* 半透明视框底 */
+  --card-soft: rgba(255, 252, 243, .48);
+  --glass: rgba(255, 253, 248, .62);
+  --glass-soft: rgba(255, 252, 243, .48);
+  --glass-line: rgba(255, 255, 255, .72);
+  --ink: #22344d;
+  --ink-soft: #64707f;
+  --mint: #7d9c86;                  /* 苔绿：只用于「正确 / 已完成」 */
+  --mint-deep: #5e7f69;
+  --green-ink: #22344d;             /* 标题一律墨蓝 */
+  --sky: #8b9aa8;                   /* 中性灰蓝：只用于次要线条与链接 */
+  --sky-deep: #72808e;
+  --sun: #e9a832;                   /* 唯一主点缀：阳光黄 */
+  --line: #e8dcc6;
+  --term: #c94f35;                  /* 术语高亮 = 珊瑚红（语义专用） */
+  --shadow: 0 6px 18px rgba(90, 76, 52, .10);
+  --shadow-lg: 0 18px 48px rgba(90, 76, 52, .18);
+  --coral: #c94f35;
+  --grape: #8a7a63;                 /* 暖灰棕，不再紫 */
+}
+
+/* ---------- 基础世界：奶油纸底 + 细点阵 ---------- */
+html[data-theme="day"] body {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(34, 52, 77, .05) 1px, transparent 0) 0 0 / 22px 22px,
+    linear-gradient(180deg, #fffdf6 0%, #fff7e8 55%, #fff9ee 100%) !important;
+  color: var(--ink);
+}
+html[data-theme="day"] ::selection { background: var(--sun); color: var(--ink); }
+html[data-theme="day"] ::-webkit-scrollbar-track { background: #fff8ea; }
+html[data-theme="day"] ::-webkit-scrollbar-thumb { background: #e5d3b4; border: 2px solid #fff8ea; }
+
+/* ---------- 顶栏：奶油玻璃 ---------- */
+html[data-theme="day"] .topbar {
+  background: rgba(255, 252, 243, .62) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--glass-line) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.4) !important;
+  backdrop-filter: blur(18px) saturate(1.4) !important;
+  box-shadow: 0 4px 16px rgba(120, 100, 60, .10) !important;
+}
+html[data-theme="day"] body.ui-full.on-story .topbar {
+  background: rgba(255, 252, 243, .68) !important;
+  border-bottom: 1px solid var(--glass-line) !important;
+}
+html[data-theme="day"] .logo { color: var(--ink); }
+html[data-theme="day"] .tl-node { color: #8a94a8; border-color: var(--line); }
+html[data-theme="day"] .tl-node.lit {
+  color: var(--ink); border-color: var(--mint); background: #f7f0e2;
+}
+html[data-theme="day"] .tab-btn {
+  background: rgba(255, 255, 255, .7); border-color: var(--line); color: var(--ink-soft);
+}
+html[data-theme="day"] .tab-btn.active, html[data-theme="day"] .tab-btn:hover {
+  background: #f7f0e2; border-color: var(--mint); color: var(--ink);
+}
+html[data-theme="day"] .api-entry {
+  background: rgba(255, 255, 255, .7); border-color: var(--line); color: var(--ink-soft);
+}
+html[data-theme="day"] .api-entry:hover { background: #fff; color: var(--ink); }
+html[data-theme="day"] .badge { background: var(--mint); color: #fff; }
+
+/* ---------- 视图标题 ---------- */
+html[data-theme="day"] .view-title { color: var(--ink); }
+html[data-theme="day"] .view-title small { color: var(--ink-soft); }
+
+/* ---------- 卡片家族：白纸卡 + 贴纸阴影 ---------- */
+html[data-theme="day"] .dialogue-box,
+html[data-theme="day"] .claim-card,
+html[data-theme="day"] .kb-related,
+html[data-theme="day"] .orch-src,
+html[data-theme="day"] .lg-panel,
+html[data-theme="day"] .tips-card,
+html[data-theme="day"] .kb-card,
+html[data-theme="day"] .api-card,
+html[data-theme="day"] .log-card,
+html[data-theme="day"] .chat-panel,
+html[data-theme="day"] .orch-panel,
+html[data-theme="day"] .side-quiz,
+html[data-theme="day"] .dev-panel,
+html[data-theme="day"] .linkgame,
+html[data-theme="day"] .game-card,
+html[data-theme="day"] .grow-card,
+html[data-theme="day"] .book-claims,
+html[data-theme="day"] .stat-card,
+html[data-theme="day"] .orch-step,
+html[data-theme="day"] .orch-agent {
+  background: var(--card) !important;
+  border-color: var(--line) !important;
+  color: var(--ink);
+  box-shadow: 0 3px 0 rgba(34, 52, 77, .10), var(--shadow);
+}
+html[data-theme="day"] .game-card:hover,
+html[data-theme="day"] .tips-card:hover { box-shadow: 0 6px 0 rgba(34, 52, 77, .10), var(--shadow-lg); }
+
+/* ---------- 按钮：阳光黄主按钮 / 纸面次按钮 ---------- */
+html[data-theme="day"] .primary-btn,
+html[data-theme="day"] .next-btn,
+html[data-theme="day"] .linkgame-start {
+  background: linear-gradient(160deg, #ffe07a, var(--sun)) !important;
+  color: var(--ink) !important;
+  border: 2px solid var(--ink) !important;
+  box-shadow: 0 3px 0 rgba(34, 52, 77, .18) !important;
+}
+html[data-theme="day"] .primary-btn:hover,
+html[data-theme="day"] .next-btn:hover,
+html[data-theme="day"] .linkgame-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(34, 52, 77, .18) !important;
+}
+html[data-theme="day"] .ghost-btn,
+html[data-theme="day"] .log-btn,
+html[data-theme="day"] .hall-btn,
+html[data-theme="day"] .resume-chip,
+html[data-theme="day"] .voice-btn,
+html[data-theme="day"] .orch-tab {
+  background: var(--card-soft) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="day"] .ghost-btn:hover,
+html[data-theme="day"] .log-btn:hover,
+html[data-theme="day"] .hall-btn:hover,
+html[data-theme="day"] .orch-tab:hover {
+  background: #fff !important; border-color: var(--sun) !important;
+}
+html[data-theme="day"] .orch-tab.active {
+  background: var(--sun) !important; border-color: var(--ink) !important; color: var(--ink) !important;
+}
+
+/* ---------- 剧情对话区（UI 换浅色，舞台 CG 不动） ---------- */
+html[data-theme="day"] .chapter-banner { color: var(--ink); }
+html[data-theme="day"] .chapter-time { color: var(--ink-soft); }
+html[data-theme="day"] .speaker { color: var(--ink); }
+html[data-theme="day"] .story-text { color: var(--ink); }
+html[data-theme="day"] .term { color: var(--term); }
+html[data-theme="day"] .term:hover { background: #f7e6d9; }
+html[data-theme="day"] .cast-bar .cm-av { border-color: var(--line); background: #fff; }
+html[data-theme="day"] .auto-status { color: var(--ink-soft); }
+html[data-theme="day"] .actor img { filter: none !important; }
+html[data-theme="day"] .choices button {
+  background: var(--card-soft); border-color: var(--line); color: var(--ink);
+}
+html[data-theme="day"] .choices button:hover { border-color: var(--mint); background: #f7f0e2; }
+
+/* ---------- 表单与输入 ---------- */
+html[data-theme="day"] .kb-search,
+html[data-theme="day"] .api-input,
+html[data-theme="day"] .chat-input input,
+html[data-theme="day"] .claim-input,
+html[data-theme="day"] .chat-input {
+  background: rgba(255, 255, 255, .66) !important; color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="day"] .kb-search:focus,
+html[data-theme="day"] .api-input:focus,
+html[data-theme="day"] .chat-input input:focus,
+html[data-theme="day"] .claim-input:focus {
+  border-color: var(--mint) !important; background: rgba(255, 255, 255, .82) !important;
+}
+html[data-theme="day"] input::placeholder { color: #8a94a8; }
+
+/* ---------- 弹窗 / 面板内部细节 ---------- */
+html[data-theme="day"] .modal-mask { background: rgba(34, 52, 77, .28); }
+html[data-theme="day"] .log-close,
+html[data-theme="day"] .lg-close,
+html[data-theme="day"] .orch-close,
+html[data-theme="day"] #chatCloseBtn {
+  background: #fff1c2; color: var(--ink); border-color: var(--line);
+}
+html[data-theme="day"] .log-close:hover,
+html[data-theme="day"] .lg-close:hover { background: var(--coral); color: #fff; }
+html[data-theme="day"] .or h1, html[data-theme="day"] .log-title { color: var(--ink); }
+html[data-theme="day"] .kb-src, html[data-theme="day"] .kb-tag, html[data-theme="day"] .tips-tag,
+html[data-theme="day"] .grow-note, html[data-theme="day"] .grow-privacy,
+html[data-theme="day"] .graph-hint, html[data-theme="day"] .games-hint,
+html[data-theme="day"] .empty-hint, html[data-theme="day"] .linkgame-tip,
+html[data-theme="day"] .api-tip, html[data-theme="day"] .api-lead,
+html[data-theme="day"] .orch-sub, html[data-theme="day"] .orch-foot,
+html[data-theme="day"] .sw-caption, html[data-theme="day"] .sw-foot-hint,
+html[data-theme="day"] .chat-status, html[data-theme="day"] .book-name {
+  color: var(--ink-soft);
+}
+html[data-theme="day"] .api-status.ok { background: #f7f0e2; border-color: var(--mint); color: var(--mint-deep); }
+html[data-theme="day"] .api-status.off { background: #f7e6d9; border-color: var(--coral); color: var(--coral); }
+html[data-theme="day"] .pet-fill { background: rgba(255, 201, 60, .25); }
+html[data-theme="day"] .pet-fill:hover { background: rgba(255, 201, 60, .45) !important; }
+html[data-theme="day"] .pet-bubble { background: #fff; color: var(--ink); border-color: var(--line); }
+html[data-theme="day"] .pet-name, html[data-theme="day"] .pet-level { color: var(--ink); }
+html[data-theme="day"] .kb-cats button { background: #fff; border-color: var(--line); color: var(--ink-soft); }
+html[data-theme="day"] .kb-cats button.active, html[data-theme="day"] .kb-cats button:hover {
+  background: #f5efe2; border-color: var(--sky); color: var(--ink);
+}
+html[data-theme="day"] .graph-legend { color: var(--ink-soft); }
+html[data-theme="day"] .lg-progress, html[data-theme="day"] .lg-score { color: var(--ink); }
+html[data-theme="day"] .lg-question, html[data-theme="day"] .lg-feedback { color: var(--ink); }
+html[data-theme="day"] .lg-choices button { background: #fff; border-color: var(--line); color: var(--ink); }
+html[data-theme="day"] .lg-choices button:hover { border-color: var(--sky); background: #f5efe2; }
+html[data-theme="day"] .lg-choices button.picked { border-color: var(--mint); background: #f7f0e2; }
+html[data-theme="day"] .chat-body { background: var(--card-soft); }
+html[data-theme="day"] .chat-head { background: #f7f0e2; color: var(--ink); border-color: var(--line); }
+html[data-theme="day"] .orch-fab {
+  background: var(--card-soft) !important; border-color: var(--line) !important; color: var(--ink) !important;
+}
+html[data-theme="day"] .orch-fab:hover { background: #fff !important; border-color: var(--grape) !important; }
+html[data-theme="day"] .orch-head { border-color: var(--line); }
+html[data-theme="day"] .orch-title { color: var(--ink); }
+html[data-theme="day"] .tips-actions, html[data-theme="day"] .api-actions { border-color: var(--line); }
+
+/* ---------- 知识库 / 手账列表项 ---------- */
+html[data-theme="day"] .kb-item, html[data-theme="day"] .kb-group,
+html[data-theme="day"] .tip-card, html[data-theme="day"] .book-claim,
+html[data-theme="day"] .grow-dims > div, html[data-theme="day"] .grow-concl-list > div {
+  background: var(--glass-soft); border-color: var(--line); color: var(--ink);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  backdrop-filter: blur(12px) saturate(1.3);
+}
+
+/* =====================================================================
+   封面大门（序章）：白天模式整屏改为「晴天纸质乐园」
+   原版是暗色实拍视频 + 暗角遮罩，白天模式下直接隐藏视频，
+   换成奶油纸底 + 阳光黄 / 晴空蓝 / 薄荷绿柔和光斑，与邓版一致。
+   ===================================================================== */
+html[data-theme="day"] .hero-video { display: none !important; }
+
+html[data-theme="day"] .hero-bg {
+  background:
+    radial-gradient(900px 620px at 78% 18%, rgba(255, 213, 90, .34) 0%, rgba(255, 213, 90, 0) 62%),
+    radial-gradient(760px 540px at 12% 82%, rgba(61, 157, 243, .20) 0%, rgba(61, 157, 243, 0) 65%),
+    radial-gradient(680px 480px at 50% 6%, rgba(47, 199, 154, .16) 0%, rgba(47, 199, 154, 0) 68%),
+    radial-gradient(circle at 1px 1px, rgba(34, 52, 77, .045) 1px, transparent 0) 0 0 / 24px 24px,
+    linear-gradient(180deg, #fffdf6 0%, #fff7e8 58%, #fff3dd 100%) !important;
+  filter: none !important;
+  animation: none !important;
+}
+/* 覆盖 night.css 的暗角遮罩，只留极淡的纸面渐隐，保证文字区干净 */
+html[data-theme="day"] .hero-bg::after {
+  background: linear-gradient(180deg, rgba(255, 247, 232, .10) 0%, rgba(255, 247, 232, .42) 62%, rgba(255, 247, 232, .72) 100%) !important;
+}
+html[data-theme="day"] .gate-full,
+html[data-theme="day"] #view-gate { background: transparent !important; }
+/* 去掉封面顶部的黑色暗角 */
+html[data-theme="day"] body.on-gate .gate-full::before { display: none !important; }
+
+/* —— 封面顶栏：白天改为奶油玻璃条，去掉透明叠在暗视频上的设定 —— */
+html[data-theme="day"] body.on-gate .topbar {
+  background: rgba(255, 252, 243, .62) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--glass-line) !important;
+  box-shadow: 0 4px 16px rgba(120, 100, 60, .10) !important;
+  backdrop-filter: blur(18px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.4) !important;
+}
+html[data-theme="day"] body.on-gate .logo {
+  color: var(--ink) !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"] body.on-gate .tab-btn,
+html[data-theme="day"] body.on-gate .api-entry {
+  color: var(--ink-soft) !important;
+  text-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
+}
+html[data-theme="day"] body.on-gate .tab-btn:hover,
+html[data-theme="day"] body.on-gate .tab-btn.active,
+html[data-theme="day"] body.on-gate .api-entry:hover {
+  background: var(--ink) !important;
+  color: #fff8e8 !important;
+}
+
+/* —— 封面文案：墨蓝为主，去深底白字 —— */
+html[data-theme="day"] .hero-big .hb-line {
+  background: linear-gradient(100deg, #1b2f47 0%, #a4762c 62%, #5e7f69 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+html[data-theme="day"] .hero-big { text-shadow: none !important; }
+html[data-theme="day"] .hero-desc { color: var(--ink-soft) !important; }
+
+html[data-theme="day"] .hero-badge {
+  background: rgba(255, 255, 255, .86) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink-soft) !important;
+  box-shadow: 0 2px 0 rgba(34, 52, 77, .06);
+}
+html[data-theme="day"] .hb-chip {
+  background: var(--coral) !important; border-color: var(--coral) !important; color: #fff !important;
+}
+html[data-theme="day"] .hb-dot {
+  background: var(--mint) !important; box-shadow: 0 0 8px rgba(47, 199, 154, .7) !important;
+}
+html[data-theme="day"] .hero-btn.primary {
+  background: linear-gradient(160deg, #ffe07a, var(--sun)) !important;
+  color: var(--ink) !important;
+  border: 2px solid var(--ink) !important;
+  box-shadow: 0 4px 0 var(--ink) !important;
+}
+html[data-theme="day"] .hero-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--ink) !important;
+}
+html[data-theme="day"] .hero-btn.ghost {
+  background: rgba(255, 255, 255, .70) !important;
+  border: 2px solid rgba(47, 74, 56, .30) !important;
+  padding: 9px 22px !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 0 rgba(47, 74, 56, .14);
+}
+html[data-theme="day"] .hero-btn.ghost:hover {
+  background: #fff !important;
+  border-color: var(--mint-deep) !important;
+  color: var(--green-ink) !important;
+  transform: translateY(-2px);
+}
+html[data-theme="day"] .stat-card {
+  background: rgba(255, 255, 255, .62) !important;
+  border: 1px solid var(--glass-line) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+  box-shadow: 0 3px 0 rgba(34, 52, 77, .08);
+}
+html[data-theme="day"] .stat-num,
+html[data-theme="day"] .stat-icon { color: var(--ink) !important; }
+html[data-theme="day"] .stat-cap,
+html[data-theme="day"] .hero-trusted { color: var(--ink-soft) !important; }
+html[data-theme="day"] .hero-brands { border-color: var(--line) !important; }
+html[data-theme="day"] .brands-track span { color: var(--ink-soft) !important; text-shadow: none !important; }
+html[data-theme="day"] .brands-track i { color: var(--sun) !important; }
+
+/* =====================================================================
+   知识图谱：深色面板 → 白纸面板（节点/连线同步换成墨蓝系）
+   ===================================================================== */
+html[data-theme="day"] .graph-wrap {
+  background: var(--glass) !important;
+  border: 1px solid var(--glass-line) !important;
+  border-radius: 18px !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 4px 0 rgba(34, 52, 77, .08), 0 18px 40px rgba(120, 100, 60, .12) !important;
+}
+html[data-theme="day"] #graphSvg { background: transparent !important; }
+html[data-theme="day"] #graphSvg .link { stroke: rgba(61, 157, 243, .38) !important; }
+html[data-theme="day"] #graphSvg .node circle {
+  fill: #ffffff !important; stroke: rgba(34, 52, 77, .45) !important;
+}
+html[data-theme="day"] #graphSvg .node.focus circle {
+  fill: #ffe9a8 !important; stroke: var(--ink) !important;
+}
+html[data-theme="day"] #graphSvg .edge-label { fill: var(--ink-soft) !important; }
+html[data-theme="day"] #graphSvg text { fill: var(--ink) !important; }
+html[data-theme="day"] .graph-legend { color: var(--ink-soft) !important; }
+html[data-theme="day"] .graph-hint { color: var(--ink-soft) !important; }
+
+/* =====================================================================
+   时空画廊（序章走廊）：暗色博物馆夜馆 → 晴天纸质画廊
+   ===================================================================== */
+html[data-theme="day"] .hall,
+html[data-theme="day"] .hall.show,
+html[data-theme="day"] body.hall-on .hall {
+  background: radial-gradient(120% 90% at 50% 0%, #fffdf6 0%, #fff7e8 55%, #fdeed6 100%) !important;
+}
+/* 场景容器与走廊保持透明，避免铺色盖到 3D 门体 */
+html[data-theme="day"] .hall-scene,
+html[data-theme="day"] .hall-corridor,
+html[data-theme="day"] .hall-solo { background: transparent !important; }
+html[data-theme="day"] .hall-wall.left,
+html[data-theme="day"] .hall-wall.right,
+html[data-theme="day"] .hall-floor,
+html[data-theme="day"] .hall-lamp { background: none !important; }
+html[data-theme="day"] .hall-floor {
+  background:
+    repeating-linear-gradient(90deg, rgba(110, 88, 60, .10) 0 2px, transparent 2px 96px),
+    repeating-linear-gradient(0deg, rgba(110, 88, 60, .06) 0 2px, transparent 2px 44px),
+    linear-gradient(#fdf1dc, #f6e3c4) !important;
+}
+html[data-theme="day"] .h3d-floor {
+  background:
+    repeating-linear-gradient(90deg, rgba(34, 52, 77, .07) 0 2px, transparent 2px 112px),
+    repeating-linear-gradient(0deg, rgba(34, 52, 77, .05) 0 2px, transparent 2px 128px),
+    linear-gradient(#fdf1dc, #f6e3c4) !important;
+  box-shadow: inset 0 0 200px rgba(180, 150, 100, .18) !important;
+}
+html[data-theme="day"] .h3d-ceil { background: linear-gradient(#fffdf7, #fdf2df) !important; }
+html[data-theme="day"] .h3d-wall {
+  background:
+    repeating-linear-gradient(90deg, rgba(34, 52, 77, .04) 0 2px, transparent 2px 226px),
+    linear-gradient(#fffaf0, #fdf1de) !important;
+  box-shadow: inset 0 0 160px rgba(180, 150, 100, .14) !important;
+}
+html[data-theme="day"] .h3d-wall::after {
+  background: linear-gradient(#fff8ea, #f9ead1) !important;
+  border-top-color: rgba(34, 52, 77, .12) !important;
+}
+html[data-theme="day"] .h3d-lamp {
+  background: #fff3c4 !important;
+  box-shadow: 0 0 50px 24px rgba(255, 201, 60, .30), 0 0 130px 60px rgba(255, 201, 60, .14) !important;
+}
+html[data-theme="day"] .h3d-end { background: linear-gradient(#fff8ea, #fbeccf) !important; }
+html[data-theme="day"] .h3d-end::after {
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 201, 60, .30), transparent 70%) !important;
+}
+html[data-theme="day"] .hall-title {
+  color: var(--ink) !important; text-shadow: none !important;
+}
+html[data-theme="day"] .hall-sub { color: var(--ink-soft) !important; }
+/* 走廊顶部标题在纸白背景上加一层白描边，保证对比度 */
+html[data-theme="day"] .hall-head .hall-title {
+  color: #14263c !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .9), 0 0 14px rgba(255, 255, 255, .95) !important;
+}
+html[data-theme="day"] .hall-head .hall-sub {
+  color: #3f5170 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .9) !important;
+}
+html[data-theme="day"] .hall-close {
+  background: rgba(255, 255, 255, .92) !important;
+  color: var(--ink) !important;
+  border: 2px solid var(--line) !important;
+}
+html[data-theme="day"] .hall-resume {
+  background: rgba(255, 255, 255, .9) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="day"] .hall-resume:hover { background: #fff !important; }
+html[data-theme="day"] .hall-dust { background-image:
+  radial-gradient(rgba(34, 52, 77, .10) 1.2px, transparent 1.8px),
+  radial-gradient(rgba(34, 52, 77, .07) 1px, transparent 1.5px) !important; }
+html[data-theme="day"] .hall-glow {
+  background: radial-gradient(circle, rgba(255, 224, 122, .85), rgba(255, 201, 60, .35) 42%, transparent 72%) !important;
+}
+html[data-theme="day"] .hall-glow-sign { color: var(--ink) !important; }
+html[data-theme="day"] .hall-glow-sub { color: var(--ink-soft) !important; }
+
+/* —— 门：薄荷/晴蓝玻璃门板 + 墨蓝粗框，在奶油走廊上清晰可见 —— */
+html[data-theme="day"] .d3d-frame {
+  background: #ffffff !important;
+  border-color: var(--ink) !important;
+  border-width: 3px !important;
+  box-shadow:
+    0 0 0 3px rgba(61, 157, 243, .22),
+    0 22px 50px rgba(80, 110, 150, .28),
+    0 0 44px rgba(255, 201, 60, .30) !important;
+}
+html[data-theme="day"] .d3d-panel {
+  background:
+    repeating-linear-gradient(90deg, rgba(34, 52, 77, .10) 0 1px, transparent 1px 26px) 0 0 / 25% 100%,
+    repeating-linear-gradient(0deg, rgba(34, 52, 77, .06) 0 1px, transparent 1px 46px),
+    linear-gradient(180deg, #fdf5e4 0%, #f7e9d0 46%, #efe1c6 100%) !important;
+  box-shadow:
+    inset 0 0 0 3px rgba(34, 52, 77, .16),
+    inset 0 0 46px rgba(255, 255, 255, .55) !important;
+}
+html[data-theme="day"] .d3d-panel::before,
+html[data-theme="day"] .d3d-panel::after {
+  border-color: rgba(34, 52, 77, .28) !important;
+  background: linear-gradient(180deg, rgba(255, 201, 60, .22), transparent);
+}
+html[data-theme="day"] .d3d-sign {
+  color: var(--ink) !important;
+  background: linear-gradient(180deg, #ffffff, #fff8ea) !important;
+  border-color: var(--ink) !important;
+  box-shadow: 0 4px 0 rgba(34, 52, 77, .18), 0 0 22px rgba(255, 201, 60, .18) !important;
+}
+html[data-theme="day"] .d3d-sign::before {
+  background:
+    radial-gradient(circle 2.6px at 5px 5px, var(--ink) 62%, transparent 68%),
+    radial-gradient(circle 2.6px at calc(100% - 5px) 5px, var(--ink) 62%, transparent 68%),
+    radial-gradient(circle 2.6px at 5px calc(100% - 5px), var(--ink) 62%, transparent 68%),
+    radial-gradient(circle 2.6px at calc(100% - 5px) calc(100% - 5px), var(--ink) 62%, transparent 68%) !important;
+}
+
+/* ---------- 切换过渡：换色平滑，不动布局 ---------- */
+html.theme-xf, html.theme-xf * { transition: background-color .35s ease, color .35s ease, border-color .35s ease, box-shadow .35s ease !important; }
+
+/* =====================================================================
+   通用微调（不区分昼夜；day.css 最后加载，可直接覆盖 night.css）
+   ===================================================================== */
+/* 知识库顶部术语跑马灯：30s → 75s，速度放慢一倍多 */
+.kb-term-track { animation-duration: 75s !important; }
+
+/* 视图标题与下方工具条拉开间距，避免贴到一起 */
+.view-title { margin-bottom: 46px; }
+.book-bar { margin-top: 4px; }
+
+/* =====================================================================
+   场景分层补齐：画廊是「展厅」，墙面保留暗色打光；门是「展品」，必须浅色。
+   之前漏掉的门框/门牌/纸页/把手/灯光仍是夜间深绿，所以看着突兀。
+   ===================================================================== */
+html[data-theme="day"] .d3d-frame {
+  background: #f3e7cf !important;
+  border-color: #d8c3a0 !important;
+  box-shadow:
+    0 0 0 2px rgba(160, 130, 90, .18),
+    0 18px 40px rgba(60, 45, 30, .22) !important;
+}
+html[data-theme="day"] .d3d-sign {
+  color: #22344d !important;
+  background: linear-gradient(180deg, #fdf5e4, #f0e0c2) !important;
+  border-color: rgba(150, 120, 78, .55) !important;
+  box-shadow: 0 3px 0 rgba(120, 95, 58, .30), 0 6px 16px rgba(90, 70, 40, .14) !important;
+  backdrop-filter: none;
+}
+html[data-theme="day"] .d3d-paper {
+  background: #fdf6e8 !important;
+  border-color: rgba(150, 120, 78, .45) !important;
+  color: #22344d !important;
+  box-shadow: 0 3px 10px rgba(90, 70, 40, .18) !important;
+}
+html[data-theme="day"] .d3d-paper i { color: rgba(120, 100, 70, .65) !important; }
+html[data-theme="day"] .d3d-paper::before,
+html[data-theme="day"] .d3d-paper::after { background: rgba(150, 128, 88, .30) !important; }
+html[data-theme="day"] .d3d-knob {
+  background: radial-gradient(circle at 35% 35%, #ffe7a8, #c08a34) !important;
+  box-shadow: 0 1px 4px rgba(90, 70, 40, .35) !important;
+}
+html[data-theme="day"] .d3d-light {
+  background: radial-gradient(circle at 50% 60%, #fffdf4 10%, rgba(250, 232, 196, .75) 55%, rgba(240, 220, 180, .25)) !important;
+}
+html[data-theme="day"] .d3d:hover::after,
+html[data-theme="day"] .d3d.hov::after {
+  box-shadow: 0 0 0 2px rgba(200, 168, 108, .45), 0 0 34px 8px rgba(233, 168, 50, .16), 0 18px 38px rgba(60, 45, 30, .26) !important;
+}
+html[data-theme="day"] .solo-door .d3d-frame {
+  box-shadow: 0 0 70px 24px rgba(250, 230, 180, .55) !important;
+}
+html[data-theme="day"] .solo-hint { color: rgba(90, 76, 52, .62) !important; }
+html[data-theme="day"] .hall-btn {
+  background: rgba(255, 250, 238, .92) !important;
+  border-color: rgba(160, 130, 90, .35) !important;
+  color: #22344d !important;
+}
+
+/* AGENT 协作悬浮球：去掉夜间霓虹光，改成暖纸卡 + 柔投影 */
+html[data-theme="day"] .orch-fab {
+  background: linear-gradient(180deg, rgba(255, 253, 246, .72), rgba(247, 238, 218, .5)) !important;
+  border-color: rgba(160, 130, 90, .38) !important;
+  color: #22344d !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.5) !important;
+  backdrop-filter: blur(18px) saturate(1.5) !important;
+  box-shadow: 0 6px 18px rgba(90, 76, 52, .16) !important;
+}
+html[data-theme="day"] .orch-fab:hover {
+  box-shadow: 0 8px 22px rgba(90, 76, 52, .22) !important;
+  border-color: rgba(200, 138, 52, .5) !important;
+}
+html[data-theme="day"] .orch-reasoning,
+html[data-theme="day"] .oc-card.oc-ai,
+html[data-theme="day"] .oc-card.oc-fb {
+  background: rgba(251, 244, 230, .46) !important;
+  border-color: rgba(160, 130, 90, .30) !important;
+  color: #22344d !important;
+}
+
+/* ---------- 小工坊内部各层：更轻的玻璃，避免和面板叠成实色 ---------- */
+html[data-theme="day"] .orch-panel {
+  background: linear-gradient(165deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, .44) 58%, rgba(255, 255, 255, .30)) !important;
+  border: 1px solid rgba(255, 255, 255, .70) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.6) !important;
+  backdrop-filter: blur(28px) saturate(1.6) !important;
+  box-shadow: 0 26px 64px rgba(90, 76, 52, .16), 0 2px 8px rgba(90, 76, 52, .06), inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+}
+html[data-theme="day"] .orch-head,
+html[data-theme="day"] .orch-foot { background: rgba(255, 255, 255, .30) !important; }
+html[data-theme="day"] .orch-step { background: rgba(255, 255, 255, .34) !important; }
+html[data-theme="day"] .orch-agent { background: rgba(255, 255, 255, .38) !important; }
+html[data-theme="day"] .orch-step.st-warn,
+html[data-theme="day"] .orch-step.st-retry { background: rgba(233, 168, 50, .16) !important; }
+html[data-theme="day"] .orch-step.st-block,
+html[data-theme="day"] .orch-step.st-fail { background: rgba(190, 80, 80, .13) !important; }
+html[data-theme="day"] .chat-head { background: rgba(247, 240, 226, .58) !important; }

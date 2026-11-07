@@ -1,0 +1,221 @@
+/* =====================================================================
+   responsive.css —— 平板 / 手机适配
+   最后加载：覆盖 night.css / day.css 中与布局有关的固定值。
+   只改布局与尺寸，颜色仍由双主题文件控制。
+   ===================================================================== */
+
+/* —— 全尺寸：非封面 / 非全屏剧情的视图，顶栏回到文档流 ——
+   night.css 把顶栏固定成封面悬浮条（top:40~76px），在知识库等页面会盖住
+   页面标题，这里统一收回文档流；封面与全屏剧情仍保持原有悬浮/透明表现。 */
+body:not(.on-gate):not(.ui-full.on-story) .topbar {
+  position: static !important;
+  top: auto !important; left: auto !important; right: auto !important;
+  transform: none !important;
+  margin: 0 0 20px;
+}
+
+/* 全屏剧情：body 已无内边距，#view-story 的负外边距会撑出 24px 横向滚动 */
+body.ui-full.on-story #view-story.active { margin: 0 !important; }
+
+/* —— 平板（≤1024）：顶栏脱离悬浮、改为随页面滚动 —— */
+@media (max-width: 1024px) {
+  body { padding: 16px 18px 28px; }
+
+  .topbar {
+    position: static !important;
+    top: auto !important; left: auto !important; right: auto !important;
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 10px; padding: 10px 16px; margin: 0 0 16px;
+    border-radius: 16px;
+    background: var(--glass) !important;
+    border: 1px solid var(--glass-line) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.4) !important;
+    backdrop-filter: blur(18px) saturate(1.4) !important;
+    box-shadow: var(--shadow) !important;
+  }
+  body.on-gate .topbar {
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important;
+    background: transparent !important; border: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  }
+  body.ui-full.on-story .topbar {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important;
+    border-radius: 0; margin: 0;
+  }
+  .timeline { order: 3; width: 100%; }
+  .top-actions { gap: 6px; }
+  .tab-btn { padding: 7px 12px; font-size: 0.85rem; }
+
+  /* 封面 / 剧情视图的负外边距：与页面留白保持一致，避免横向溢出 */
+  .gate-full { margin-left: -18px; margin-right: -18px; margin-bottom: -28px; }
+  /* 剧情视图在 on-story 下 body 自带 0 内边距，负边距会横向溢出，这里归零 */
+  #view-story.active { margin: 0; }
+  .hero-desc { width: 100%; max-width: 100%; }
+
+  .stage { padding: 22px 20px calc(var(--dlg-h, 210px) + 34px); }
+  body.ui-full.on-story .stage { padding: 0; }
+  .chat-panel { width: min(320px, calc(100vw - 32px)); height: 380px; }
+  .orch-panel { width: min(470px, calc(100vw - 32px)); }
+  .kb-cards { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .grow-grid { gap: 16px; }
+}
+
+/* —— 手机（≤640）：单列布局，导航横滑，对话框贴底，聊天变抽屉 —— */
+@media (max-width: 640px) {
+  body { padding: 10px 12px 22px; }
+
+  .topbar { gap: 8px; padding: 10px 12px; margin-bottom: 12px; border-radius: 14px; }
+  .logo { width: 100%; text-align: center; font-size: 1.05rem; }
+  /* 导航：一行可横滑，不再挤成两行或被裁掉 */
+  .top-actions {
+    order: 2; width: 100%;
+    display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: 6px;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .top-actions::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; white-space: nowrap; padding: 7px 12px; font-size: 0.8rem; }
+  .api-entry { flex: 0 0 auto; padding: 7px 14px !important; font-size: 0.8rem !important; }
+  .timeline { order: 3; width: 100%; gap: 4px; padding-bottom: 2px; }
+  .tl-node { padding: 3px 8px; font-size: 0.66rem; }
+
+  .view-title { font-size: 1.16rem; margin: 14px 2px 18px; }
+  .view-title::after { width: 52px; height: 3px; margin-top: 9px; }
+
+  /* 封面：去掉强制换行，按钮可折行，负边距与页面留白对齐 */
+  .gate-full { margin: -12px -12px -22px; min-height: 100dvh; }
+  #view-story.active { margin: 0; }
+  .hero-inner { padding-left: 16px; padding-right: 16px; }
+  .hero-desc { width: 100%; max-width: 100%; font-size: 0.82rem; line-height: 1.85; }
+  .hero-desc br { display: none; }
+  .hero-cta { flex-wrap: wrap; justify-content: center; gap: 12px; margin: 28px 0 36px; }
+  .hero-cta .hero-btn { flex: 1 1 auto; justify-content: center; }
+  .stat-card { width: min(76vw, 300px); }
+  .gate-hero { margin: 14px 0 18px; }
+  .gate-hero h1 { font-size: 1.22rem; }
+  .gate-grid { grid-template-columns: 1fr; gap: 14px; }
+  .gate-card { padding: 20px 18px 46px; }
+
+  /* 剧情舞台：底部按对话框实测高度留白，台词不再压住正文 */
+  .stage {
+    min-height: 0; border-radius: 14px;
+    padding: 16px 14px calc(var(--dlg-h, 210px) + 32px);
+  }
+  .chapter-banner {
+    font-size: 0.9rem; gap: 8px; padding-bottom: 10px;
+    margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .chapter-time { font-size: 0.72rem; }
+  .dialogue-box { left: 10px; right: 10px; bottom: 10px; padding: 12px 14px; border-radius: 14px; }
+  .speaker { font-size: 0.78rem; }
+  .log-btn { top: 10px; right: 10px; padding: 5px 10px; font-size: 0.74rem; }
+  /* 收起两个演示用浮钮；流水线 / Swarm 切换在小工坊面板内仍可用 */
+  #modeBtn, #superBtn { display: none; }
+  .cast-stage { display: none; }
+  .stage-hud { top: 10px; right: 10px; gap: 6px; }
+  body.ui-full.on-story .chapter-banner { font-size: 0.82rem; padding: 5px 10px; }
+  body.ui-full.on-story .dialogue-box { left: 8px; right: 8px; }
+
+  /* —— 手机端浮钮：统一压成圆形，只占边角，不压正文 —— */
+  #themeFab {
+    right: 10px; bottom: 10px; z-index: 45;
+    width: 36px; height: 36px;
+  }
+  #themeFab .tf-constellation,
+  #themeFab .tf-star,
+  #themeFab .tf-bloom { display: none; }
+  /* 滑块居中，两种主题保持一致 */
+  #themeFab .tf-knob {
+    left: 50%; top: 50%; margin: -13px 0 0 -13px;
+    transform: none !important;
+  }
+  /* 封面：主题钮落在统计卡右侧的空白竖带里，避开学院落款与跑马灯 */
+  body.on-gate #themeFab {
+    top: auto; right: 10px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 52px);
+  }
+  /* 封面收起小工坊入口（避免压住底部落款），进入剧情后仍可用 */
+  body.on-gate .orch-fab { display: none; }
+  /* 收紧落款上边距，让底部跑马灯完整落在视口内 */
+  .hero-credit { margin-top: 0; }
+
+  /* 剧情：两个浮钮抬到对话框上沿之外，不压台词与选项 */
+  body.on-story #themeFab,
+  body.on-story .orch-fab {
+    bottom: calc(var(--dlg-h, 210px) + env(safe-area-inset-bottom, 0px) + 14px);
+  }
+  body.hall-on #themeFab,
+  body.hall-on .orch-fab { display: none; }
+
+  /* 非剧情页：底部留出浮钮高度，末尾内容能滚到浮钮上方 */
+  body:not(.on-gate):not(.on-story) { padding-bottom: 92px; }
+
+  /* 水之子聊天：底部整幅抽屉 */
+  .chat-panel {
+    left: 0; right: 0; bottom: 0; z-index: 72;
+    width: auto; height: min(64dvh, 430px);
+    border-radius: 18px 18px 0 0;
+  }
+  .msg { max-width: 92%; font-size: 0.82rem; }
+
+  /* AI 小工坊：手机改底部整幅抽屉，头部/底部不压缩，内容区自己滚动 */
+  .orch-panel {
+    left: 0; right: 0; bottom: 0; z-index: 70;
+    width: auto; max-width: none; max-height: 88dvh;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .orch-head, .orch-foot { flex: 0 0 auto; }
+  .orch-body { min-height: 0; }
+  .orch-fab { left: 10px; bottom: 10px; }
+  .orch-tab { font-size: 0.7rem; padding: 4px 10px; }
+
+  /* 手机上这两块是覆盖正文的抽屉：保留磨砂，但把背后文字糊掉，避免“文字重叠” */
+  .chat-panel,
+  .orch-panel {
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    backdrop-filter: blur(20px) saturate(1.3);
+  }
+  /* 抽屉打开时收起浮钮，避免圆钮透在抽屉里 */
+  body:has(#chatPanel.show) #themeFab,
+  body:has(#chatPanel.show) .orch-fab,
+  body:has(#orchPanel.show) #themeFab,
+  body:has(#orchPanel.show) .orch-fab { display: none; }
+
+  /* 时空画廊：标题让开右上角「返回封面」，文字不再被按钮压住 */
+  body.hall-on .hall-head { top: 14px !important; padding: 0 96px; }
+  body.hall-on .hall-title { font-size: 0.9rem !important; letter-spacing: 1px; }
+  body.hall-on .hall-sub { font-size: 0.7rem; line-height: 1.55; letter-spacing: 0; }
+  body.hall-on .hall-close { top: 10px; right: 10px; padding: 6px 10px; font-size: 0.7rem; }
+
+  /* 手账 / 知识库 / 成长观察 */
+  .book-bar { flex-wrap: wrap; padding: 10px 12px; }
+  .claim-row { gap: 8px; padding: 8px 10px; }
+  .claim-ch { flex-basis: 44px; font-size: 0.76rem; }
+  .kb-toolbar { gap: 8px; margin-bottom: 16px; }
+  .kb-search { width: 100%; }
+  .kb-cards { grid-template-columns: 1fr; }
+  .kb-row { flex-wrap: wrap; gap: 6px; }
+  .kb-row h4 { min-width: 0; width: 100%; }
+  .kb-example { padding: 10px 12px; font-size: 0.86rem; }
+  .grow-grid { gap: 14px; }
+
+  /* 弹窗 / 术语连线：盖住浮钮，避免按钮压住弹层内容 */
+  .modal-mask { padding: 10px; z-index: 90; }
+  .side-quiz, .dev-panel { z-index: 80; }
+  .tips-card { width: auto; max-width: none; margin: 12px; padding: 18px 16px; }
+  .log-card { width: auto; max-width: none; margin: 10px; max-height: 86dvh; }
+}
+
+/* —— 小屏（≤400）：再压一档字号与控件 —— */
+@media (max-width: 400px) {
+  .tab-btn { font-size: 0.76rem; padding: 6px 10px; }
+  .api-entry { padding: 6px 12px !important; }
+  .orch-panel { max-height: 92dvh; }
+  #themeFab { width: 32px; height: 32px; }
+  .claim-ch { flex-basis: 100%; }
+  .orch-step, .orch-agent { font-size: 0.7rem; }
+  .log-card { margin: 6px; }
+}

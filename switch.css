@@ -1,0 +1,123 @@
+/* =====================================================================
+   switch.css —— 两个作品版本（乐园探索版 / 经典馆藏版）共用的切换控件
+   在各自 style 之后加载，只新增组件，不改动原有样式。
+   ===================================================================== */
+
+/* ---------- 顶栏版本切换胶囊 ---------- */
+.ver-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  margin-left: 4px;
+  border: 1px solid rgba(120, 140, 130, .22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .62);
+  box-shadow: 0 2px 8px rgba(60, 90, 80, .08), inset 0 1px 0 rgba(255, 255, 255, .7);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.ver-switch .vs-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  color: #5a6b63;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.ver-switch .vs-item:hover { background: rgba(94, 180, 150, .14); color: #2f4a38; }
+.ver-switch .vs-item.is-on {
+  background: linear-gradient(120deg, #5aa75c 0%, #4d8fb5 100%);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(90, 167, 92, .32);
+}
+.ver-switch .vs-emoji { font-size: 13px; line-height: 1; }
+
+/* 乐园版夜间模式（暗夜博物馆）下改用实心暗底，避免叠在深色顶栏上发白 */
+html[data-theme="night"] .ver-switch {
+  background: rgba(20, 24, 22, .78);
+  border-color: rgba(200, 215, 205, .18);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .34), inset 0 1px 0 rgba(255, 255, 255, .06);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html[data-theme="night"] .ver-switch .vs-item { color: #9fb2a8; }
+html[data-theme="night"] .ver-switch .vs-item:hover { background: rgba(143, 184, 158, .16); color: #e8e6e1; }
+html[data-theme="night"] .ver-switch .vs-item.is-on {
+  background: linear-gradient(120deg, #4a8b6f 0%, #5a8a96 100%);
+  color: #f2f5f0;
+  box-shadow: 0 2px 8px rgba(74, 139, 111, .4);
+}
+
+/* ---------- 切换过渡幕（两版共用的暖纸底色） ---------- */
+.vs-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 120% at 50% 20%, #fffaf0 0%, #fff7e8 42%, #eef7ee 100%);
+  opacity: 0;
+  transition: opacity .28s ease;
+  pointer-events: none;
+}
+.vs-curtain.is-in { opacity: 1; }
+.vs-curtain .vs-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(8px);
+  transition: transform .28s ease;
+}
+.vs-curtain.is-in .vs-box { transform: translateY(0); }
+.vs-curtain .vs-logo {
+  font-size: 34px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 14px rgba(90, 167, 92, .25));
+  animation: vsBob 1.4s ease-in-out infinite;
+}
+.vs-curtain .vs-brand { font-size: 15px; font-weight: 700; letter-spacing: 3px; color: #2f4a38; }
+.vs-curtain .vs-line { font-size: 12px; letter-spacing: 1px; color: #7d8f84; }
+.vs-curtain .vs-bar {
+  width: 130px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(90, 167, 92, .16);
+  overflow: hidden;
+}
+.vs-curtain .vs-bar i {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5aa75c, #4d8fb5);
+  animation: vsRun 1s ease-in-out infinite;
+}
+@keyframes vsBob { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
+@keyframes vsRun { 0% { transform: translateX(-110%); } 100% { transform: translateX(330%); } }
+
+@media (max-width: 760px) {
+  /* 两版窄屏统一：顶栏按钮区撑满一行，切换键独占整行，避免被右边缘裁掉 */
+  .top-actions { width: 100%; flex-wrap: wrap; justify-content: flex-start; }
+  .ver-switch {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: calc(100vw - 40px);
+    max-width: 100%;
+    margin: 6px 0 0;
+    justify-content: center;
+  }
+  .ver-switch .vs-item { flex: 1 1 0; min-width: 0; height: 28px; justify-content: center; font-size: 12px; }
+}
