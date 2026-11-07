@@ -1,12 +1,13 @@
 /* =========================================================
  * spot.js —— 找茬馆
  *
- * 后端 /api/spotdiff/random 每次随机抽一幅场景图（固定题库，避免实时生成不可控），
- * 前端把图铺进舞台，再按题库给的百分比坐标叠一层透明点击热区：
- *   - 点中错误 → 打勾 + 计数
- *   - 点空 → 卡片抖一下，提示「再仔细看看」
- *   - 提示按钮 → 随机挑一处没找到的，闪两下并给文字线索
- * 找齐全部错误即通关，可「再找一次」或随机下一幅。
+ * 后端 /api/spotdiff/random 每次随机抽一幅场景图（固定题库），
+ * 前端把图铺进舞台，再按题库给的百分比坐标叠一层透明点击热区。
+ *
+ * 为了解决「换一幅」时图片缓冲慢的问题，这里做了两件事：
+ *   1) 图片已转成 WebP（36–108 KB / 张，比 JPG 小约 75%）
+ *   2) 后台预取队列：当前题一显示，就悄悄再拉 2 道题并把图加载进内存缓存。
+ *      这样点「换一幅」时大概率命中缓存，秒出图，不需要等网络。
  * ========================================================= */
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -21,33 +22,81 @@
   let busy = false;
   let solved = false;
 
+  /* ---------- 后台预取队列 ----------
+   * pending: 已经从服务器拉好、只差显示的关卡（含完整 errors 坐标）
+   * imgLoaded: 该关卡的图是否已经解码完成（命中则秒出） */
+  const pending = new Map();   // id -> level
+  const imgLoaded = new Set(); // id
+  const PREFETCH = 2;          // 始终保持 2 道题在后台待命
+
+  function preloadImage(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = img.onerror = () => resolve(img);
+      img.src = src;
+    });
+  }
+
+  /* 从服务器拉一道题（排除当前 + 已缓存的），并存入 pending */
+  async function fetchOneLevel(excludeIds) {
+    const qs = new URLSearchParams({ t: String(Date.now()) });
+    excludeIds.forEach((id) => qs.append('exclude', id));
+    const res = await fetch(apiUrl('/api/spotdiff/random?' + qs.toString()), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  }
+
+  /* 后台补充预取队列到 PREFETCH 道 */
+  async function refillCache() {
+    const excludeIds = [level && level.id, ...pending.keys()].filter(Boolean);
+    while (pending.size < PREFETCH) {
+      try {
+        const lv = await fetchOneLevel(excludeIds);
+        if (!lv || pending.has(lv.id)) break;
+        pending.set(lv.id, lv);
+        excludeIds.push(lv.id);
+        // 图片异步解码，不阻塞
+        preloadImage(lv.image).then(() => imgLoaded.add(lv.id));
+      } catch { break; }
+    }
+  }
+
   /* ---------- 取题 ---------- */
   async function load(exclude) {
     if (busy) return;
     busy = true;
     stage.classList.add('is-busy');
+
     try {
-      const qs = new URLSearchParams({ t: String(Date.now()) });
-      if (exclude) qs.set('exclude', exclude);
-      const res = await fetch(apiUrl('/api/spotdiff/random?' + qs.toString()), { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      level = await res.json();
+      // 优先用后台预取好的题（秒出图）
+      let nextId = null;
+      for (const id of pending.keys()) {
+        if (id !== exclude) { nextId = id; break; }
+      }
+      if (nextId) {
+        level = pending.get(nextId);
+        pending.delete(nextId);
+        if (imgLoaded.has(nextId)) imgLoaded.delete(nextId);
+      } else {
+        const qs = new URLSearchParams({ t: String(Date.now()) });
+        if (exclude) qs.set('exclude', exclude);
+        const res = await fetch(apiUrl('/api/spotdiff/random?' + qs.toString()), { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        level = await res.json();
+      }
+
       $('spotNote').textContent = `题库 ${level.total} 幅 · 随机抽题`;
-      await preload(level.image);
+      if (!imgLoaded.has(level.id)) await preloadImage(level.image);
       render();
     } catch (e) {
       stage.innerHTML = '<p class="spot-err">题库没加载出来，点「换一幅」再试试。</p>';
     }
+
     busy = false;
     stage.classList.remove('is-busy');
-  }
-
-  function preload(src) {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = img.onerror = resolve;
-      img.src = src;
-    });
+    // 显示完后，后台继续补题
+    refillCache();
   }
 
   /* ---------- 铺图 ---------- */

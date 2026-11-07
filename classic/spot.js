@@ -1,12 +1,13 @@
 /* =========================================================
- * spot.js —— 找茬馆
+ * spot.js —— 找茬馆（经典版）
  *
- * 后端 /api/spotdiff/random 每次随机抽一幅场景图（固定题库，避免实时生成不可控），
- * 前端把图铺进舞台，再按题库给的百分比坐标叠一层透明点击热区：
- *   - 点中错误 → 打勾 + 计数
- *   - 点空 → 卡片抖一下，提示「再仔细看看」
- *   - 提示按钮 → 随机挑一处没找到的，闪两下并给文字线索
- * 找齐全部错误即通关，可「再找一次」或随机下一幅。
+ * 后端 /api/spotdiff/random 每次随机抽一幅场景图（固定题库），
+ * 前端把图铺进舞台，再按题库给的百分比坐标叠一层透明点击热区。
+ *
+ * 为了解决「换一幅」时图片缓冲慢的问题：
+ *   1) 图片已转成 WebP（比 JPG 小约 75%）
+ *   2) 后台预取队列：当前题一显示，就悄悄再拉 2 道题并把图加载进内存缓存。
+ *      点「换一幅」时大概率命中缓存，秒出图。
  * ========================================================= */
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -21,33 +22,74 @@
   let busy = false;
   let solved = false;
 
+  /* ---------- 后台预取队列 ---------- */
+  const pending = new Map();
+  const imgLoaded = new Set();
+  const PREFETCH = 2;
+
+  function preloadImage(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = img.onerror = () => resolve(img);
+      img.src = src;
+    });
+  }
+
+  async function fetchOneLevel(excludeIds) {
+    const qs = new URLSearchParams({ t: String(Date.now()) });
+    excludeIds.forEach((id) => qs.append('exclude', id));
+    const res = await fetch((window.API_BASE || '') + '/api/spotdiff/random?' + qs.toString(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  }
+
+  async function refillCache() {
+    const excludeIds = [level && level.id, ...pending.keys()].filter(Boolean);
+    while (pending.size < PREFETCH) {
+      try {
+        const lv = await fetchOneLevel(excludeIds);
+        if (!lv || pending.has(lv.id)) break;
+        pending.set(lv.id, lv);
+        excludeIds.push(lv.id);
+        preloadImage(lv.image).then(() => imgLoaded.add(lv.id));
+      } catch { break; }
+    }
+  }
+
   /* ---------- 取题 ---------- */
   async function load(exclude) {
     if (busy) return;
     busy = true;
     stage.classList.add('is-busy');
+
     try {
-      const qs = new URLSearchParams({ t: String(Date.now()) });
-      if (exclude) qs.set('exclude', exclude);
-      const res = await fetch((window.API_BASE || '') + '/api/spotdiff/random?' + qs.toString(), { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      level = await res.json();
+      let nextId = null;
+      for (const id of pending.keys()) {
+        if (id !== exclude) { nextId = id; break; }
+      }
+      if (nextId) {
+        level = pending.get(nextId);
+        pending.delete(nextId);
+        if (imgLoaded.has(nextId)) imgLoaded.delete(nextId);
+      } else {
+        const qs = new URLSearchParams({ t: String(Date.now()) });
+        if (exclude) qs.set('exclude', exclude);
+        const res = await fetch((window.API_BASE || '') + '/api/spotdiff/random?' + qs.toString(), { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        level = await res.json();
+      }
+
       $('spotNote').textContent = `题库 ${level.total} 幅 · 随机抽题`;
-      await preload(level.image);
+      if (!imgLoaded.has(level.id)) await preloadImage(level.image);
       render();
     } catch (e) {
       stage.innerHTML = '<p class="spot-err">题库没加载出来，点「换一幅」再试试。</p>';
     }
+
     busy = false;
     stage.classList.remove('is-busy');
-  }
-
-  function preload(src) {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = img.onerror = resolve;
-      img.src = src;
-    });
+    refillCache();
   }
 
   /* ---------- 铺图 ---------- */
