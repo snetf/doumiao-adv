@@ -250,7 +250,7 @@ function switchView(name, opts) {
       btn.onclick = (e) => { e.stopPropagation(); switchView(btn.dataset.goto); };
     });
   }
-  if (name === 'story' && !(opts && opts.skipHall) && window.AdvHall && window.AdvHall.show) window.AdvHall.show();
+  if (name === 'story' && !(opts && opts.skipHall) && window.AdvHall && window.AdvHall.show) window.AdvHall.show(!!(opts && opts.fromGate));
 }
 document.querySelectorAll('.tab-btn').forEach((btn) => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
@@ -297,7 +297,9 @@ document.querySelectorAll('.gate-card.open').forEach((card) => {
 });
 // 封面 CTA 按钮跳转
 document.querySelectorAll('.hero-btn[data-goto]').forEach((btn) => {
-  btn.addEventListener('click', () => switchView(btn.dataset.goto));
+  // 从主页进画廊时，先停在「博物馆的大门」前 —— 不要直接跳进走廊
+  btn.addEventListener('click', () =>
+    switchView(btn.dataset.goto, btn.dataset.goto === 'story' ? { fromGate: true } : undefined));
 });
 switchView('gate');   // 默认落在封面大门（首页）
 

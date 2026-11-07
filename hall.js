@@ -285,10 +285,11 @@
     bindHallControls();
   }
 
-  function show() {
+  function show(forceSolo) {
     buildHall();
     hallHold = false;
-    const solo = !passedPrologue();
+    // forceSolo：从主页封面点「进入时空画廊」时，永远先停在博物馆大门前
+    const solo = forceSolo === true || !passedPrologue();
     const hall = $('hall');
     if (!hall) return;
     hall.classList.toggle('solo', solo);
