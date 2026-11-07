@@ -255,6 +255,42 @@ function switchView(name, opts) {
 document.querySelectorAll('.tab-btn').forEach((btn) => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
 });
+
+/* ----- 窄屏导航列表：≤1024 顶栏只留「目录」，点开后是整页列表 ----- */
+const navSheetEl = $('navSheet');
+const navToggleEl = $('navToggle');
+function setNavSheet(open) {
+  if (!navSheetEl) return;
+  navSheetEl.hidden = !open;
+  document.body.classList.toggle('nav-open', open);
+  if (navToggleEl) navToggleEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (!open) return;
+  // 云端模式隐藏「接入 AI」入口，列表里同步隐藏
+  const apiItem = navSheetEl.querySelector('[data-api]');
+  const apiBtnEl = $('apiBtn');
+  if (apiItem && apiBtnEl) apiItem.hidden = apiBtnEl.style.display === 'none';
+  const cur = navSheetEl.querySelector('.tab-btn.active');
+  if (cur) cur.focus({ preventScroll: true });
+}
+if (navToggleEl) {
+  navToggleEl.addEventListener('click', () => setNavSheet(navSheetEl.hidden));
+}
+if (navSheetEl) {
+  const navCloseBtn = $('navClose');
+  if (navCloseBtn) navCloseBtn.addEventListener('click', () => setNavSheet(false));
+  navSheetEl.addEventListener('click', (e) => {
+    if (e.target === navSheetEl) return setNavSheet(false);   // 点遮罩关闭
+    if (e.target.closest('[data-api]')) {
+      setNavSheet(false);
+      if ($('apiBtn')) $('apiBtn').click();
+      return;
+    }
+    if (e.target.closest('.tab-btn')) setNavSheet(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !navSheetEl.hidden) setNavSheet(false);
+  });
+}
 // 大门卡片跳转（仅开放板块）
 document.querySelectorAll('.gate-card.open').forEach((card) => {
   card.addEventListener('click', () => switchView(card.dataset.goto));

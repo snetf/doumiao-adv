@@ -17,6 +17,10 @@ body:not(.on-gate):not(.ui-full.on-story) .topbar {
 /* 全屏剧情：body 已无内边距，#view-story 的负外边距会撑出 24px 横向滚动 */
 body.ui-full.on-story #view-story.active { margin: 0 !important; }
 
+/* —— 窄屏导航列表：桌面端不存在，≤1024 才由顶栏「目录」唤起 —— */
+.nav-toggle { display: none; }
+.nav-sheet { display: none; }
+
 /* —— 平板（≤1024）：顶栏脱离悬浮、改为随页面滚动 —— */
 @media (max-width: 1024px) {
   body { padding: 16px 18px 28px; }
@@ -27,8 +31,8 @@ body.ui-full.on-story #view-story.active { margin: 0 !important; }
     display: flex; flex-wrap: wrap; align-items: center;
     gap: 10px; padding: 10px 16px; margin: 0 0 16px;
     border-radius: 16px;
-    background: var(--glass) !important;
-    border: 1px solid var(--glass-line) !important;
+    background: var(--card) !important;
+    border: 1px solid var(--line) !important;
     -webkit-backdrop-filter: blur(18px) saturate(1.4) !important;
     backdrop-filter: blur(18px) saturate(1.4) !important;
     box-shadow: var(--shadow) !important;
@@ -49,6 +53,60 @@ body.ui-full.on-story #view-story.active { margin: 0 !important; }
   .top-actions { gap: 6px; }
   .tab-btn { padding: 7px 12px; font-size: 0.85rem; }
 
+  /* 顶栏只留 Logo + 目录按钮，把选项收进列表，避免挤成两行 */
+  .top-actions .tab-btn,
+  .top-actions .api-entry { display: none; }
+  .nav-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    font-size: 0.86rem; font-weight: 600; box-shadow: var(--shadow);
+  }
+  .nav-toggle:active { transform: scale(.97); }
+
+  /* 列表：全屏遮罩 + 居中整块列表，点条目才进入对应页面 */
+  .nav-sheet:not([hidden]) {
+    display: flex; position: fixed; inset: 0; z-index: 9800;
+    align-items: flex-start; justify-content: center;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(16px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    background: rgba(8, 12, 11, .58);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    animation: navFade .18s ease;
+  }
+  @keyframes navFade { from { opacity: 0; } }
+  .nav-sheet-panel {
+    width: 100%; max-width: 480px; margin-top: 5vh;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 20px; box-shadow: var(--shadow-lg);
+    padding: 14px 14px 16px; color: var(--ink);
+  }
+  .nav-sheet-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 2px 4px 12px;
+  }
+  .nav-sheet-title { font-size: 0.78rem; letter-spacing: .08em; color: var(--ink-soft); }
+  .nav-sheet-close {
+    border: 1px solid var(--line); background: transparent; color: var(--ink-soft);
+    border-radius: 999px; padding: 5px 14px; font-size: 0.78rem; cursor: pointer;
+  }
+  .nav-sheet-close:hover { color: var(--ink); border-color: var(--mint); }
+  .nav-list { display: grid; gap: 8px; }
+  .nav-list .nav-item {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; cursor: pointer;
+    padding: 13px 16px; border-radius: 14px;
+    border: 1px solid var(--line); background: var(--card-soft);
+    color: var(--ink); font-size: 0.95rem;
+    transition: border-color .18s ease, transform .15s ease;
+  }
+  .nav-list .nav-item:hover,
+  .nav-list .nav-item:active { border-color: var(--mint); transform: translateY(-1px); }
+  .nav-list .tab-btn.active { border-color: var(--mint); }
+  .nav-list .tab-btn.active::after { content: "当前"; font-size: 0.7rem; color: var(--mint-deep); }
+  .nav-list .nav-item-api { justify-content: center; font-size: 0.85rem; color: var(--ink-soft); }
+  body.nav-open { overflow: hidden; }
+
   /* 封面 / 剧情视图的负外边距：与页面留白保持一致，避免横向溢出 */
   .gate-full { margin-left: -18px; margin-right: -18px; margin-bottom: -28px; }
   /* 剧情视图在 on-story 下 body 自带 0 内边距，负边距会横向溢出，这里归零 */
@@ -58,7 +116,7 @@ body.ui-full.on-story #view-story.active { margin: 0 !important; }
   .stage { padding: 22px 20px calc(var(--dlg-h, 210px) + 34px); }
   body.ui-full.on-story .stage { padding: 0; }
   .chat-panel { width: min(320px, calc(100vw - 32px)); height: 380px; }
-  .orch-panel { width: min(470px, calc(100vw - 32px)); }
+  .orch-panel { width: min(340px, calc(100vw - 32px)); }
   .kb-cards { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
   .grow-grid { gap: 16px; }
 }
@@ -80,6 +138,11 @@ body.ui-full.on-story #view-story.active { margin: 0 !important; }
   .api-entry { flex: 0 0 auto; padding: 7px 14px !important; font-size: 0.8rem !important; }
   .timeline { order: 3; width: 100%; gap: 4px; padding-bottom: 2px; }
   .tl-node { padding: 3px 8px; font-size: 0.66rem; }
+  /* 剧情全屏：时间轴不再占一行，给舞台让出高度 */
+  body.ui-full.on-story .timeline { display: none; }
+  /* 手机顶栏：第一行 Logo + 目录，时间轴单独占第二行 */
+  .logo { width: auto; flex: 1 1 auto; order: 1; text-align: left; font-size: 1rem; }
+  .top-actions { order: 2; width: auto; flex: 0 0 auto; }
 
   .view-title { font-size: 1.16rem; margin: 14px 2px 18px; }
   .view-title::after { width: 52px; height: 3px; margin-top: 9px; }
