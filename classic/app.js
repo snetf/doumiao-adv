@@ -40,6 +40,39 @@ let navSeq = 0;
 const API_BASE = String(window.API_BASE || '').replace(/\/$/, '');
 const api = (p) => API_BASE + p;
 
+/* ---------- 可靠的 JSON 请求 ----------
+   云端（FC）会有冷启动、偶发 502 和网络抖动，单个 fetch 失败就会显示「连接不上」。
+   这里统一做：超时中断 + 自动重试 + 禁用缓存，失败才向上抛。 */
+async function fetchJson(path, opt = {}) {
+  const { timeout = 9000, retry = 2, method = 'GET', body, headers } = opt;
+  let lastErr;
+  for (let attempt = 0; attempt <= retry; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const init = { method, signal: ctrl.signal, cache: 'no-store' };
+      if (body !== undefined) {
+        init.body = body;
+        init.headers = headers || { 'Content-Type': 'application/json' };
+      } else if (headers) {
+        init.headers = headers;
+      }
+      const r = await fetch(api(path), init);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      clearTimeout(timer);
+      return data;
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = e;
+      if (attempt < retry) {
+        await new Promise((res) => setTimeout(res, 600 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 /* ---------- 说话人头像（剧情互动可视化） ---------- */
 const SPEAKER_AVATAR = {
   '旁白':   { emoji: '📜', bg: '#eef2f7' },
@@ -115,6 +148,41 @@ function switchView(name) {
 document.querySelectorAll('.tab-btn').forEach((btn) => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
 });
+
+/* ---------- 窄屏导航列表：≤1024 顶栏只留「目录」，点开后是整页列表 ---------- */
+const navSheetEl = $('navSheet');
+const navToggleEl = $('navToggle');
+function setNavSheet(open) {
+  if (!navSheetEl) return;
+  navSheetEl.hidden = !open;
+  document.body.classList.toggle('nav-open', open);
+  if (navToggleEl) navToggleEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (!open) return;
+  const apiItem = navSheetEl.querySelector('[data-api]');
+  const apiBtnEl = $('apiBtn');
+  if (apiItem && apiBtnEl) apiItem.hidden = apiBtnEl.style.display === 'none';
+  const cur = navSheetEl.querySelector('.tab-btn.active');
+  if (cur) cur.focus({ preventScroll: true });
+}
+if (navToggleEl) {
+  navToggleEl.addEventListener('click', () => setNavSheet(navSheetEl.hidden));
+}
+if (navSheetEl) {
+  const navCloseBtn = $('navClose');
+  if (navCloseBtn) navCloseBtn.addEventListener('click', () => setNavSheet(false));
+  navSheetEl.addEventListener('click', (e) => {
+    if (e.target === navSheetEl) return setNavSheet(false);
+    if (e.target.closest('[data-api]')) {
+      setNavSheet(false);
+      if ($('apiBtn')) $('apiBtn').click();
+      return;
+    }
+    if (e.target.closest('.tab-btn')) setNavSheet(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !navSheetEl.hidden) setNavSheet(false);
+  });
+}
 // 首屏 CTA 也走同一套视图切换
 document.querySelectorAll('.hero-actions [data-view]').forEach((btn) => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
@@ -816,18 +884,29 @@ $('kbModal').addEventListener('click', (e) => { if (e.target.id === 'kbModal') $
 
 /* 知识库 2.0：独立于 ADV 的体系化阅读——分类分组卡片 + 搜索 + 分类筛选 */
 let KB_CACHE = null, KB_CAT = '全部', KB_Q = '';
+let kbRetryTimer = null, kbRetryCount = 0;
 async function renderKbList() {
   const box = $('kbList');
   if (!KB_CACHE) box.innerHTML = '<p class="empty-hint">加载中……</p>';
   let list = KB_CACHE;
   if (!list) {
-    try { list = await (await fetch(api('/api/knowledge'))).json(); }
-    catch {
-      // 离线：用本地 TERMS 兜底渲染
+    try {
+      list = await fetchJson('/api/knowledge', { timeout: 12000 });
+      if (!Array.isArray(list) || !list.length) throw new Error('知识库返回异常');
+      KB_CACHE = list;
+      kbRetryCount = 0;
+    } catch {
+      // 云端冷启动 / 抖动：本地词条先顶上，3 秒后还在知识库页就再试一次（最多 3 次）
       list = Object.entries(TERMS).filter(([t]) => t !== '豆苗')
         .map(([t, v]) => ({ term: t, brief: v.brief, category: '基础概念', year: '-', age: '' }));
+      if (!kbRetryTimer && kbRetryCount < 3) {
+        kbRetryTimer = setTimeout(() => {
+          kbRetryTimer = null;
+          kbRetryCount++;
+          if ($('view-kb').classList.contains('active')) renderKbList();
+        }, 3000);
+      }
     }
-    KB_CACHE = list;
   }
   // 分类筛选条
   const cats = ['全部', ...new Set(list.map((k) => k.category))];
@@ -1090,7 +1169,10 @@ function bindGraphEvents() {
 async function renderTipsGrid() {
   // 服务器为准，本地为兜底
   let serverTips = {};
-  try { serverTips = await (await fetch(api('/api/tips'))).json(); } catch { /* 离线 */ }
+  try {
+    const d = await fetchJson('/api/tips');
+    if (d && typeof d === 'object' && !Array.isArray(d)) serverTips = d;
+  } catch { /* 离线：只用本地已收集的词条 */ }
   const terms = [...new Set([...Object.keys(serverTips), ...state.collected])];
   $('tipsBadge').textContent = terms.length;
   $('tipsEmpty').style.display = terms.length ? 'none' : 'block';
@@ -1224,10 +1306,10 @@ function paintApiConfig(c) {
 
 async function loadApiConfig() {
   try {
-    paintApiConfig(await (await fetch(api('/api/config'))).json());
+    paintApiConfig(await fetchJson('/api/config'));
   } catch {
     $('apiStatus').className = 'api-status off';
-    $('apiStatus').textContent = '后端未连接，无法读取配置';
+    $('apiStatus').textContent = '后端未连接（已自动重试 3 次），稍后点「API」再试一次';
   }
 }
 
@@ -1278,7 +1360,7 @@ $('apiTestBtn').onclick = async () => {
   btn.disabled = true; btn.textContent = '测试中…';
   apiTip('正在用当前 Key 发一条测试请求……');
   try {
-    const d = await (await fetch(api('/api/config/test'), { method: 'POST' })).json();
+    const d = await fetchJson('/api/config/test', { method: 'POST', timeout: 25000, retry: 0 });
     apiTip((d.ok ? '✅ ' : '❌ ') + d.message + (d.ms ? `（${d.ms} ms）` : ''), d.ok ? 'ok' : 'err');
   } catch {
     apiTip('测试失败：后端没连上', 'err');

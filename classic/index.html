@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="style.css?v=47">
 <link rel="stylesheet" href="../switch.css?v=3">
 </head>
 <body>
@@ -37,6 +37,7 @@
   <nav class="timeline" id="timeline" aria-label="历史时间轴"></nav>
 
   <div class="top-actions">
+    <button class="nav-toggle" id="navToggle" type="button" aria-controls="navSheet" aria-expanded="false">☰ 目录</button>
     <button class="tab-btn" data-view="gate">大厅</button>
     <button class="tab-btn" data-view="story">发展史</button>
     <button class="tab-btn" data-view="tips">手账<span class="badge" id="tipsBadge">0</span></button>
@@ -47,6 +48,26 @@
     <button class="api-entry" id="apiBtn" title="填入自己的 API Key，用你的模型驱动这个作品"><span class="api-dot"></span>API</button>
   </div>
 </header>
+
+<!-- 窄屏导航列表：≤1024 由顶栏「目录」唤起，桌面端隐藏 -->
+<div class="nav-sheet" id="navSheet" hidden>
+  <div class="nav-sheet-panel" role="dialog" aria-label="选择页面">
+    <div class="nav-sheet-head">
+      <span class="nav-sheet-title">选择页面</span>
+      <button class="nav-sheet-close" id="navClose" type="button">关闭</button>
+    </div>
+    <nav class="nav-list">
+      <button class="tab-btn nav-item" data-view="gate">大厅</button>
+      <button class="tab-btn nav-item" data-view="story">发展史</button>
+      <button class="tab-btn nav-item" data-view="tips">手账</button>
+      <button class="tab-btn nav-item" data-view="kb">知识库</button>
+      <button class="tab-btn nav-item" data-view="lab">实验室</button>
+      <button class="tab-btn nav-item" data-view="spot">找茬馆</button>
+      <button class="tab-btn nav-item" data-view="graph">图谱</button>
+      <button class="nav-item nav-item-api" data-api="1" type="button">API（填自己的 Key）</button>
+    </nav>
+  </div>
+</div>
 
 <main>
 
@@ -703,7 +724,7 @@
 <script src="story.js?v=22"></script>
 <script src="fx.js?v=19"></script>
 <script src="games.js?v=7"></script>
-<script src="app.js?v=35"></script>
+<script src="app.js?v=36"></script>
 <script src="lab.js?v=4"></script>
 <script src="spot.js?v=5"></script>
 <script src="../switch.js?v=1" data-version="classic"></script>
