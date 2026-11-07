@@ -413,7 +413,12 @@ if (window.ResizeObserver) {
     if (tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
     const st = document.querySelector('.stage');
     const db = $('dialogueBox');
-    if (st && db) st.style.setProperty('--dlg-h', db.offsetHeight + 'px');
+    if (db) {
+      const h = db.offsetHeight + 'px';
+      if (st) st.style.setProperty('--dlg-h', h);
+      /* #orchPanel 在 body 级，取不到 .stage 上的变量，必须写到根元素 */
+      document.documentElement.style.setProperty('--dlg-h', h);
+    }
   });
   const _tb = document.querySelector('.topbar');
   if (_tb) hudSync.observe(_tb);

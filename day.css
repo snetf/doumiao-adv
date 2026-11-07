@@ -90,7 +90,7 @@ html[data-theme="day"] #themeFab .tf-sun { display: block; }
 /* ---------- 白天令牌：把 night.css 的暗色令牌整体换回「纸质阳光」 ---------- */
 html[data-theme="day"] {
   --bg: #fff7e8;
-  --card: rgba(255, 253, 248, .62);          /* 半透明视框底 */
+  --card: #fffdf8;                          /* 实色卡面：保证文字对比度 */
   --card-soft: rgba(255, 252, 243, .48);
   --glass: rgba(255, 253, 248, .62);
   --glass-soft: rgba(255, 252, 243, .48);

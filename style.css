@@ -1172,8 +1172,8 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
 }
 
 .orch-panel {
-  position: fixed; left: 24px; bottom: 76px; z-index: 62;
-  width: 470px; max-width: calc(100vw - 48px); max-height: 66vh;
+  position: fixed; left: 24px; bottom: 76px; z-index: 70;
+  width: 340px; max-width: calc(100vw - 48px); max-height: min(44vh, 380px);
   display: none; flex-direction: column; overflow: hidden;
   background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;
   box-shadow: 0 20px 50px rgba(15, 23, 42, .18);
@@ -2006,82 +2006,17 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
 .sw-foot { background: rgba(255, 255, 255, .24); border-top-color: rgba(255, 255, 255, .5); }
 .swarm-demo { background: rgba(255, 255, 255, .46); border-color: rgba(255, 255, 255, .62); color: var(--green-ink); }
 
-/* 注意：面板与入口保持默认位置（bottom: 76px / 24px），不为了躲避对话框而移动 */
+/* 小工坊抬到对话框上沿之外，绝不压住台词（--dlg-h 由 app.js 实测写入根元素） */
+body.on-story .orch-panel { bottom: calc(var(--dlg-h, 210px) + 34px); }
 
-/* ============ 全站视框：统一半透明磨砂（白天 / 夜间共用） ============ */
-.topbar,
-.gate-card,
-.dialogue-box,
-.chat-panel,
-.log-card,
-.mini-card,
-.book-bar,
-.claim-row,
-.tip-card,
-.kb-row,
-.tips-card,
-.kb-card,
-.kb-card2,
-.api-card,
-.grow-card,
-.stat-card,
-.game-card,
-.spot-card,
-.book-claim,
-.kb-item,
-.kb-group,
-.kb-example,
-.swarm-flow,
-.api-status,
-.side-quiz,
-.dev-panel,
-.linkgame,
-.lg-panel,
-.kb-related,
-.claim-card,
-.grow-stat,
+/* ============ 全站视框回到实色（对比度优先）；只有小工坊保留磨砂 ============ */
 .orch-panel {
   -webkit-backdrop-filter: blur(16px) saturate(1.35);
   backdrop-filter: blur(16px) saturate(1.35);
 }
-/* 原本是实色纸面的视框，统一换成玻璃底 */
-.book-bar,
-.kb-card2,
-.kb-example,
-.swarm-flow,
-.api-status { background: var(--glass-soft); }
-.claim-row,
-.grow-card,
-.stat-card,
-.game-card,
-.spot-card,
-.mini-card { background: var(--glass); }
-/* 玻璃厚度：顶部一道内高光，边框收细 */
-.claim-row,
-.grow-card,
-.stat-card,
-.game-card,
-.spot-card,
-.mini-card,
-.book-bar,
-.kb-card2,
-.tip-card,
-.kb-row,
-.tips-card,
-.kb-card,
-.api-card,
-.dialogue-box,
-.chat-panel,
-.log-card {
-  border-color: var(--glass-line);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), var(--shadow);
-}
 @media (max-width: 720px) {
-  /* 窄屏降低模糊开销：保留半透明，去掉逐层模糊 */
-  .topbar, .gate-card, .dialogue-box, .chat-panel, .log-card, .mini-card,
-  .book-bar, .claim-row, .tip-card, .kb-row, .tips-card, .kb-card, .kb-card2,
-  .api-card, .grow-card, .stat-card, .game-card, .spot-card, .book-claim,
-  .kb-item, .kb-group, .orch-panel {
+  /* 窄屏降低模糊开销 */
+  .orch-panel {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
