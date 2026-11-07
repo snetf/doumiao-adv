@@ -76,7 +76,7 @@ async function fetchJson(path, opt = {}) {
 /* ---------- 说话人头像（剧情互动可视化） ---------- */
 const SPEAKER_AVATAR = {
   '旁白':   { emoji: '📜', bg: '#eef2f7' },
-  '水之子': { img: '../assets/shuizhizi_cut.png' },
+  '水之子': { img: '../assets/shuizhizi_cut.webp' },
   '小豆苗': { emoji: '🌱', bg: '#eef7e8' },
   '图灵':   { emoji: '🏃', bg: '#e9f3fa' },
   '麦卡锡': { emoji: '🖋️', bg: '#eef7e8' },

@@ -7,7 +7,10 @@
 <title>豆苗时光机 · 亲历 AI 的七十年</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<!-- Google Fonts 不阻塞首屏：国内网络经常连不上，同步加载会把页面卡住数秒 -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap"></noscript>
+<link rel="preconnect" href="https://doumiao-adv-bfzrfvqpep.cn-shanghai.fcapp.run" crossorigin>
 <link rel="stylesheet" href="style.css?v=47">
 <link rel="stylesheet" href="../switch.css?v=3">
 </head>
@@ -398,7 +401,7 @@
           <div class="pet" id="pet">
             <div class="pet-halo" aria-hidden="true"></div>
             <div class="pet-mini">💧</div>
-            <img class="pet-img" src="../assets/shuizhizi_cut.png" alt="水之子" draggable="false">
+            <img class="pet-img" src="../assets/shuizhizi_cut.webp" alt="水之子" draggable="false" loading="lazy" decoding="async">
             <div class="pet-bubble" id="petBubble">点我和水之子聊天～</div>
             <div class="pet-name">水之子</div>
             <div class="pet-level" id="petLevel">🌱 小豆苗 Lv.1 种子</div>
@@ -724,7 +727,7 @@
 <script src="story.js?v=22"></script>
 <script src="fx.js?v=19"></script>
 <script src="games.js?v=7"></script>
-<script src="app.js?v=36"></script>
+<script src="app.js?v=37"></script>
 <script src="lab.js?v=4"></script>
 <script src="spot.js?v=5"></script>
 <script src="../switch.js?v=1" data-version="classic"></script>

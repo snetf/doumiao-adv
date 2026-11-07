@@ -112,7 +112,7 @@ const PORTRAIT_VER = '2';
 const PORTRAIT = (s) => ({ img: `assets/characters/${s}.webp?v=${PORTRAIT_VER}`, av: `assets/characters/av/${s}.webp?v=${PORTRAIT_VER}` });
 const SPEAKER_AVATAR = {
   '旁白':   { emoji: '📜', bg: '#eef2f7' },
-  '水之子': { img: 'assets/shuizhizi_cut.png', av: 'assets/shuizhizi_cut.png' },
+  '水之子': { img: 'assets/shuizhizi_cut.webp', av: 'assets/shuizhizi_cut.webp' },
   '小豆苗': { emoji: '🌱', bg: '#eef7e8' },
   '图灵':   { ...PORTRAIT('turing'),     emoji: '🏃', bg: '#e9f3fa' },
   '麦卡锡': { ...PORTRAIT('mccarthy'),   emoji: '🖋️', bg: '#eef7e8' },

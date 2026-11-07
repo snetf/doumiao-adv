@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="spot.css?v=1">
 <link rel="stylesheet" href="responsive.css?v=9">
 <link rel="stylesheet" href="switch.css?v=3">
+<link rel="preconnect" href="https://doumiao-adv-bfzrfvqpep.cn-shanghai.fcapp.run" crossorigin>
 </head>
 <body>
 
@@ -60,7 +61,7 @@
   <section id="view-gate" class="view active">
     <div class="gate-full">
       <div class="hero-bg">
-        <video class="hero-video" id="heroVideo" src="assets/hero-grow.mp4?v=1" poster="assets/hero-start.jpg" autoplay muted playsinline preload="auto"></video>
+        <video class="hero-video" id="heroVideo" src="assets/hero-grow.mp4?v=1" poster="assets/hero-start.jpg" muted playsinline preload="none"></video>
       </div>
       <div class="hero-inner">
         <div class="hero-badge"><span class="hb-chip">New</span><span class="hb-dot"></span><span>坐进时光机，亲历 AI 七十年</span></div>
@@ -210,7 +211,7 @@
       <!-- 水之子桌宠：默认小头像浮动，点击展开完整形象并打开聊天 -->
       <div class="pet" id="pet">
         <div class="pet-mini">💧</div>
-        <img class="pet-img" src="assets/shuizhizi_cut.png" alt="水之子" draggable="false">
+        <img class="pet-img" src="assets/shuizhizi_cut.webp" alt="水之子" draggable="false" loading="lazy" decoding="async">
         <div class="pet-bubble" id="petBubble">点我和水之子聊天～</div>
         <div class="pet-name">水之子</div>
         <div class="pet-level" id="petLevel">🌱 小豆苗 Lv.1 种子</div>
@@ -558,10 +559,27 @@
 
 <script src="cloud-config.js?v=1"></script>
 <script src="story.js?v=32"></script>
-<script src="app.js?v=71"></script>
+<script src="app.js?v=72"></script>
 <script src="spot.js?v=2"></script>
 <script src="hall.js?v=6"></script>
 <script src="switch.js?v=1" data-version="park"></script>
+<script>
+/* ---------- 封面视频延后加载 ----------
+   先用 poster 秒开封面，页面 load 之后再拉视频；省流 / 弱网直接不播。 */
+(function () {
+  var v = document.getElementById('heroVideo');
+  if (!v) return;
+  var c = navigator.connection || {};
+  if (c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
+  function start() {
+    v.preload = 'auto';
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+  if (document.readyState === 'complete') setTimeout(start, 300);
+  else window.addEventListener('load', function () { setTimeout(start, 300); }, { once: true });
+})();
+</script>
 <script>
 /* ---------- 昼夜模式切换胶囊按钮（默认夜间，记住选择） ---------- */
 (function(){
