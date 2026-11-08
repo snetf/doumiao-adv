@@ -1489,18 +1489,31 @@ let _nodeEls = new Map();     // term -> <g> 元素（用于平滑过渡）
 let _edgeLayer = null, _nodeLayer = null;
 
 /* 知识库索引只拉一次：服务器在线走 /api/knowledge，离线退回前端 TERMS。
+ * 提速：localStorage 缓存 24 小时（内容只随部署变化），命中则秒开，
+ * 同时后台静默刷新，下一次打开就是新数据。页面加载后闲时预拉，
+ * 孩子点开知识库/图谱时不用等 FC 冷启动。
  * related 只保留确实存在的词条（兼容新旧格式），保证连线题不会指向不存在的概念。 */
-async function getKbIndex() {
-  if (_kbIndex) return _kbIndex;
-  let list;
-  try { list = await (await fetch(apiUrl('/api/knowledge'))).json(); }
-  catch {
-    list = Object.entries(TERMS).filter(([t]) => t !== '豆苗').map(([t, v]) => ({
-      term: t, category: v.category || '基础概念', related: v.related || [],
-    }));
-  }
+const KB_LS_KEY = 'adv_kb_index_v1';
+const KB_LS_TTL = 24 * 3600 * 1000;
+
+function kbLsRead() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KB_LS_KEY) || 'null');
+    if (raw && Array.isArray(raw.list) && raw.list.length && (Date.now() - raw.ts) < KB_LS_TTL) return raw.list;
+  } catch { /* 忽略 */ }
+  return null;
+}
+function kbLsWrite(list) {
+  try { localStorage.setItem(KB_LS_KEY, JSON.stringify({ ts: Date.now(), list })); } catch { /* 忽略 */ }
+}
+function kbFallbackList() {
+  return Object.entries(TERMS).filter(([t]) => t !== '豆苗').map(([t, v]) => ({
+    term: t, category: v.category || '基础概念', related: v.related || [],
+  }));
+}
+function buildKbIndex(list) {
   const all = new Set(list.map((k) => k.term));
-  _kbIndex = {
+  return {
     list,
     map: new Map(list.map((k) => [
       k.term, {
@@ -1511,6 +1524,28 @@ async function getKbIndex() {
       },
     ])),
   };
+}
+async function fetchKbListRemote() {
+  const res = await fetch(apiUrl('/api/knowledge'));
+  const list = await res.json();
+  if (!Array.isArray(list) || !list.length) throw new Error('知识库返回异常');
+  kbLsWrite(list);
+  return list;
+}
+
+async function getKbIndex() {
+  if (_kbIndex) return _kbIndex;
+  const cached = kbLsRead();
+  if (cached) {
+    _kbIndex = buildKbIndex(cached);
+    // 后台静默刷新，下次进来就是新的
+    fetchKbListRemote().then((fresh) => { _kbIndex = buildKbIndex(fresh); }).catch(() => {});
+    return _kbIndex;
+  }
+  let list;
+  try { list = await fetchKbListRemote(); }
+  catch { list = kbFallbackList(); }
+  _kbIndex = buildKbIndex(list);
   return _kbIndex;
 }
 
@@ -2947,4 +2982,10 @@ document.querySelectorAll('[data-open]').forEach((el) => {
     if (el.dataset.open === 'bias') openBias();
     if (el.dataset.open === 'safety') openSafety();
   });
+});
+
+// ---------- 知识库闲时预热 ----------
+// 首屏渲染完 2.5s 后后台拉一次知识库索引，孩子点开知识库/图谱时就是秒开
+window.addEventListener('load', () => {
+  setTimeout(() => { try { getKbIndex(); } catch { /* 预热失败不碍事 */ } }, 2500);
 });

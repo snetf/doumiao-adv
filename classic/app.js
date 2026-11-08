@@ -884,30 +884,66 @@ async function openKb(term) {
 $('kbCloseBtn').onclick = () => $('kbModal').classList.remove('show');
 $('kbModal').addEventListener('click', (e) => { if (e.target.id === 'kbModal') $('kbModal').classList.remove('show'); });
 
-/* 知识库 2.0：独立于 ADV 的体系化阅读——分类分组卡片 + 搜索 + 分类筛选 */
+/* 知识库 2.0：独立于 ADV 的体系化阅读——分类分组卡片 + 搜索 + 分类筛选
+ * 提速：localStorage 缓存 24 小时（内容只随部署变化），命中秒开，
+ * 后台静默刷新；图谱共用同一份缓存。 */
 let KB_CACHE = null, KB_CAT = '全部', KB_Q = '';
 let kbRetryTimer = null, kbRetryCount = 0;
+const KB_LS_KEY = 'classic_kb_list_v1';
+const KB_LS_TTL = 24 * 3600 * 1000;
+
+function kbLsRead() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KB_LS_KEY) || 'null');
+    if (raw && Array.isArray(raw.list) && raw.list.length && (Date.now() - raw.ts) < KB_LS_TTL) return raw.list;
+  } catch { /* 忽略 */ }
+  return null;
+}
+function kbLsWrite(list) {
+  try { localStorage.setItem(KB_LS_KEY, JSON.stringify({ ts: Date.now(), list })); } catch { /* 忽略 */ }
+}
+function kbFallbackList() {
+  return Object.entries(TERMS).filter(([t]) => t !== '豆苗')
+    .map(([t, v]) => ({ term: t, brief: v.brief, category: '基础概念', year: '-', age: '' }));
+}
+async function fetchKbListRemote() {
+  const list = await fetchJson('/api/knowledge', { timeout: 12000 });
+  if (!Array.isArray(list) || !list.length) throw new Error('知识库返回异常');
+  kbLsWrite(list);
+  return list;
+}
+/* 统一取列表：内存 → localStorage → 网络（后台刷新） */
+async function getKbList() {
+  if (KB_CACHE) return KB_CACHE;
+  const cached = kbLsRead();
+  if (cached) {
+    KB_CACHE = cached;
+    fetchKbListRemote().then((fresh) => {
+      KB_CACHE = fresh;
+      if ($('view-kb') && $('view-kb').classList.contains('active')) renderKbList();
+    }).catch(() => {});
+    return cached;
+  }
+  KB_CACHE = await fetchKbListRemote();
+  return KB_CACHE;
+}
+
 async function renderKbList() {
   const box = $('kbList');
-  if (!KB_CACHE) box.innerHTML = '<p class="empty-hint">加载中……</p>';
-  let list = KB_CACHE;
-  if (!list) {
-    try {
-      list = await fetchJson('/api/knowledge', { timeout: 12000 });
-      if (!Array.isArray(list) || !list.length) throw new Error('知识库返回异常');
-      KB_CACHE = list;
-      kbRetryCount = 0;
-    } catch {
-      // 云端冷启动 / 抖动：本地词条先顶上，3 秒后还在知识库页就再试一次（最多 3 次）
-      list = Object.entries(TERMS).filter(([t]) => t !== '豆苗')
-        .map(([t, v]) => ({ term: t, brief: v.brief, category: '基础概念', year: '-', age: '' }));
-      if (!kbRetryTimer && kbRetryCount < 3) {
-        kbRetryTimer = setTimeout(() => {
-          kbRetryTimer = null;
-          kbRetryCount++;
-          if ($('view-kb').classList.contains('active')) renderKbList();
-        }, 3000);
-      }
+  if (!KB_CACHE && !kbLsRead()) box.innerHTML = '<p class="empty-hint">加载中……</p>';
+  let list;
+  try {
+    list = await getKbList();
+    kbRetryCount = 0;
+  } catch {
+    // 云端冷启动 / 抖动：本地词条先顶上，3 秒后还在知识库页就再试一次（最多 3 次）
+    list = kbFallbackList();
+    if (!kbRetryTimer && kbRetryCount < 3) {
+      kbRetryTimer = setTimeout(() => {
+        kbRetryTimer = null;
+        kbRetryCount++;
+        if ($('view-kb').classList.contains('active')) renderKbList();
+      }, 3000);
     }
   }
   // 分类筛选条
@@ -969,7 +1005,7 @@ async function renderGraph() {
   const svg = $('graphSvg');
   if (!svg) return;
   let list;
-  try { list = await (await fetch(api('/api/knowledge'))).json(); }
+  try { list = await getKbList(); }
   catch {
     list = Object.entries(TERMS).filter(([t]) => t !== '豆苗').map(([t, v]) => ({
       term: t, category: v.category || '基础概念', related: v.related || [],
@@ -1611,4 +1647,11 @@ window.CloudSync && CloudSync.init({
     adv_chapters: 'chapters',
     adv_mode: 'mode',
   },
+});
+
+
+// ---------- 知识库闲时预热 ----------
+// 首屏渲染完 2.5s 后后台拉一次列表，点开知识库/图谱时就是秒开
+window.addEventListener('load', () => {
+  setTimeout(() => { try { getKbList().catch(() => {}); } catch { /* 预热失败不碍事 */ } }, 2500);
 });
