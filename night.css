@@ -12,15 +12,15 @@
   --glass: rgba(24, 28, 27, .62);
   --glass-soft: rgba(28, 32, 31, .46);
   --glass-line: rgba(255, 255, 255, .14);
-  --ink: #e8e6e1;
-  --ink-soft: #8b9a93;
+  --ink: #f1efe9;
+  --ink-soft: #a8b7af;
   --mint: #8fb89e;          /* 低饱和翡翠，点缀用 */
   --mint-deep: #4a8b6f;     /* 深林绿，强调用 */
-  --green-ink: #c5d8cc;     /* 柔绿白，标题用 */
+  --green-ink: #d2e3d9;     /* 柔绿白，标题用 */
   --sky: #7fa3b0;           /* 灰青，辅助 */
   --sky-deep: #5a8a96;
   --sun: #c9b89c;
-  --line: rgba(200, 210, 200, .10);
+  --line: rgba(200, 210, 200, .16);
   --term: #c9a876;
   --shadow: 0 6px 20px rgba(0, 0, 0, .38);
   --shadow-lg: 0 18px 48px rgba(0, 0, 0, .52);
@@ -64,7 +64,7 @@ body.ui-full.on-story .topbar {
   border-bottom: 1px solid var(--line) !important;
 }
 .logo { color: var(--green-ink); letter-spacing: .5px; }
-.tl-node { color: #6f7d76; border-color: var(--line); }
+.tl-node { color: #8b998f; border-color: var(--line); }
 .tl-node.lit {
   color: var(--green-ink);
   border-color: rgba(143, 184, 158, .4);

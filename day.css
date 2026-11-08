@@ -96,7 +96,7 @@ html[data-theme="day"] {
   --glass-soft: rgba(255, 252, 243, .48);
   --glass-line: rgba(255, 255, 255, .72);
   --ink: #22344d;
-  --ink-soft: #64707f;
+  --ink-soft: #566274;
   --mint: #7d9c86;                  /* 苔绿：只用于「正确 / 已完成」 */
   --mint-deep: #5e7f69;
   --green-ink: #22344d;             /* 标题一律墨蓝 */
@@ -136,7 +136,7 @@ html[data-theme="day"] body.ui-full.on-story .topbar {
   border-bottom: 1px solid var(--glass-line) !important;
 }
 html[data-theme="day"] .logo { color: var(--ink); }
-html[data-theme="day"] .tl-node { color: #8a94a8; border-color: var(--line); }
+html[data-theme="day"] .tl-node { color: #6d7a90; border-color: var(--line); }
 html[data-theme="day"] .tl-node.lit {
   color: var(--ink); border-color: var(--mint); background: #f7f0e2;
 }
@@ -250,7 +250,7 @@ html[data-theme="day"] .chat-input input:focus,
 html[data-theme="day"] .claim-input:focus {
   border-color: var(--mint) !important; background: rgba(255, 255, 255, .82) !important;
 }
-html[data-theme="day"] input::placeholder { color: #8a94a8; }
+html[data-theme="day"] input::placeholder { color: #75819a; }
 
 /* ---------- 弹窗 / 面板内部细节 ---------- */
 html[data-theme="day"] .modal-mask { background: rgba(34, 52, 77, .28); }
