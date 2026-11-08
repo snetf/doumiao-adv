@@ -169,6 +169,82 @@
     });
   }
 
+  /* ---------- 跨设备同步码（手机 ↔ 电脑） ----------
+   * 自动注入两版都有的 API 弹窗（#apiModal .api-card），复用弹窗现有样式类，
+   * app.js 零改动。流程：本机获取 6 位码 → 另一台设备输入 → 换成同一设备 ID。 */
+  function wireSyncUI() {
+    const card = document.querySelector('#apiModal .api-card');
+    if (!card || document.getElementById('csSync')) return;
+
+    const style = document.createElement('style');
+    style.textContent = ''
+      + '.cs-sync{margin-top:14px;border-top:1px solid rgba(127,127,127,.25);padding-top:12px}'
+      + '.cs-sync-title{font-weight:700;margin-bottom:8px}'
+      + '.cs-row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}'
+      + '.cs-code{font-size:22px;letter-spacing:4px;font-weight:800}'
+      + '.cs-note{font-size:12px;opacity:.75;margin-top:4px}';
+    document.head.appendChild(style);
+
+    const box = document.createElement('div');
+    box.className = 'cs-sync';
+    box.id = 'csSync';
+    box.innerHTML = ''
+      + '<div class="cs-sync-title">📱↔💻 手机和电脑同步</div>'
+      + '<div class="cs-row">本机同步码：<b class="cs-code" id="csCode">------</b>'
+      + '<button type="button" class="ghost-btn" id="csCodeBtn">获取</button></div>'
+      + '<div class="cs-row"><input class="api-input" id="csCodeInput" maxlength="6" '
+      + 'placeholder="输入另一台设备的 6 位码" autocomplete="off" spellcheck="false" '
+      + 'style="max-width:220px;text-transform:uppercase">'
+      + '<button type="button" class="primary-btn" id="csRedeemBtn">连接</button></div>'
+      + '<div class="cs-note" id="csNote">同步码 10 分钟内有效，一码一次。连接后两台设备共用同一份学习档案。</div>';
+    card.appendChild(box);
+
+    const codeEl = box.querySelector('#csCode');
+    const noteEl = box.querySelector('#csNote');
+    const inputEl = box.querySelector('#csCodeInput');
+
+    box.querySelector('#csCodeBtn').addEventListener('click', async () => {
+      noteEl.textContent = '正在获取同步码……';
+      const out = await silentFetch('/api/sync/code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId: deviceId() }),
+      });
+      if (out && out.ok && out.code) {
+        codeEl.textContent = out.code;
+        noteEl.textContent = '把 ' + out.code + ' 填到另一台设备上，10 分钟内有效。';
+      } else if (out && out.fallback) {
+        noteEl.textContent = '云端暂时不可用，稍后再试。';
+      } else {
+        noteEl.textContent = '获取失败，再点一次试试。';
+      }
+    });
+
+    box.querySelector('#csRedeemBtn').addEventListener('click', async () => {
+      const code = String(inputEl.value || '').trim().toUpperCase();
+      if (!/^[A-Z2-9]{6}$/.test(code)) { noteEl.textContent = '格式不对：6 位字母或数字。'; return; }
+      noteEl.textContent = '正在连接……';
+      const out = await silentFetch('/api/sync/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, deviceId: deviceId() }),
+      });
+      if (out && out.ok && out.deviceId) {
+        try { localStorage.setItem('adv_device_id', out.deviceId); } catch { /* 忽略 */ }
+        noteEl.textContent = '连接成功！正在同步两台设备的进度……';
+        setTimeout(() => { try { location.reload(); } catch { /* 忽略 */ } }, 1200);
+      } else if (out && out.error === 'code_expired') {
+        noteEl.textContent = '同步码已过期或被用过了，让对方重新获取一个。';
+      } else if (out && out.error === 'same_device') {
+        noteEl.textContent = '这是本机自己的码，要填另一台设备上的。';
+      } else if (out && out.fallback) {
+        noteEl.textContent = '云端暂时不可用，稍后再试。';
+      } else {
+        noteEl.textContent = '连接失败，检查一下码有没有输错。';
+      }
+    });
+  }
+
   window.CloudSync = {
     /** opts: { scene: 'joy'|'classic', keys: { localStorageKey: payloadField } } */
     init(opts) {
@@ -177,6 +253,7 @@
       scene = opts.scene === 'classic' ? 'classic' : 'joy';
       keyMap = opts.keys;
       const boot = () => {
+        wireSyncUI();
         // 静默注册设备（不阻塞首屏）
         silentFetch('/api/account/hello', {
           method: 'POST',
