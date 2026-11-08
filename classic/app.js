@@ -243,6 +243,7 @@ function markChapterVisited(chapter) {
   if (list.includes(chapter)) return;
   list.push(chapter);
   try { localStorage.setItem(CHAPTER_KEY, JSON.stringify(list)); } catch { /* 隐身模式忽略 */ }
+  window.CloudSync && CloudSync.track('chapter_done', { chapter });
 }
 
 function renderChapterPicker() {
@@ -832,6 +833,7 @@ async function showTip(term) {
     state.collected.push(term);
     localStorage.setItem('adv_tips', JSON.stringify(state.collected));
     updateBadge(); updatePet();
+    window.CloudSync && CloudSync.track('tip_collect', { term });
     try { await fetch(api('/api/tips'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ term }), keepalive: true }); }
     catch { /* 服务器没开也不影响游玩 */ }
   }
@@ -1599,3 +1601,14 @@ renderNode(STORY.start);
 loadApiConfig();
 /* 页面打开就把模型连接焐热（只花 1 个 token），避免第一次对话吃冷启动的 1~2 秒 */
 fetch(api('/api/warm')).catch(() => {});
+
+/* ---------- 云端学习数据同步（MySQL）----------
+ * 匿名设备 ID + 进度合并（只增不减）+ 变化防抖上报；接口挂了静默降级 localStorage。 */
+window.CloudSync && CloudSync.init({
+  scene: 'classic',
+  keys: {
+    adv_tips: 'tips',
+    adv_chapters: 'chapters',
+    adv_mode: 'mode',
+  },
+});
