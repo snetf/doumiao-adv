@@ -170,26 +170,35 @@
   }
 
   /* ---------- 跨设备同步码（手机 ↔ 电脑） ----------
-   * 自动注入两版都有的 API 弹窗（#apiModal .api-card），复用弹窗现有样式类，
-   * app.js 零改动。流程：本机获取 6 位码 → 另一台设备输入 → 换成同一设备 ID。 */
-  function wireSyncUI() {
-    const card = document.querySelector('#apiModal .api-card');
-    if (!card || document.getElementById('csSync')) return;
+   * 独立入口：顶部「同步」按钮 + 轻量弹窗，不再依赖 API 弹窗，
+   * 这样即使 API 入口被隐藏（如家长只读视图），同步功能仍可单独使用。
+   * 流程：本机获取 6 位码 → 另一台设备输入 → 换成同一设备 ID。 */
+  let syncMounted = false;
 
+  function syncStyles() {
+    if (document.getElementById('csStyle')) return;
     const style = document.createElement('style');
+    style.id = 'csStyle';
     style.textContent = ''
-      + '.cs-sync{margin-top:14px;border-top:1px solid rgba(127,127,127,.25);padding-top:12px}'
-      + '.cs-sync-title{font-weight:700;margin-bottom:8px}'
-      + '.cs-row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}'
-      + '.cs-code{font-size:22px;letter-spacing:4px;font-weight:800}'
-      + '.cs-note{font-size:12px;opacity:.75;margin-top:4px}';
+      + '.cs-sync{font-size:14px}'
+      + '.cs-sync-title{font-weight:700;margin-bottom:10px;font-size:16px}'
+      + '.cs-row{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}'
+      + '.cs-code{font-size:22px;letter-spacing:4px;font-weight:800;font-family:Consolas,monospace}'
+      + '.cs-note{font-size:12px;color:#6d767c;line-height:1.7;margin-top:6px}'
+      + '#csModal{position:fixed;inset:0;z-index:9998;display:none}'
+      + '#csModal.open{display:block}'
+      + '.cs-mask{position:absolute;inset:0;background:#1d2a24}'
+      + '.cs-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);'
+      + 'width:min(430px,92vw);background:#fbfaf6;border:1px solid #d9d9d0;border-radius:14px;'
+      + 'padding:22px 22px 20px;box-shadow:0 24px 70px rgba(0,0,0,.28)}'
+      + '.cs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}'
+      + '.cs-head b{font-size:16px;letter-spacing:.02em}'
+      + '.cs-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:#6d767c}';
     document.head.appendChild(style);
+  }
 
-    const box = document.createElement('div');
-    box.className = 'cs-sync';
-    box.id = 'csSync';
-    box.innerHTML = ''
-      + '<div class="cs-sync-title">📱↔💻 手机和电脑同步</div>'
+  function syncBoxHtml() {
+    return ''
       + '<div class="cs-row">本机同步码：<b class="cs-code" id="csCode">------</b>'
       + '<button type="button" class="ghost-btn" id="csCodeBtn">获取</button></div>'
       + '<div class="cs-row"><input class="api-input" id="csCodeInput" maxlength="6" '
@@ -197,13 +206,14 @@
       + 'style="max-width:220px;text-transform:uppercase">'
       + '<button type="button" class="primary-btn" id="csRedeemBtn">连接</button></div>'
       + '<div class="cs-note" id="csNote">同步码 10 分钟内有效，一码一次。连接后两台设备共用同一份学习档案。</div>';
-    card.appendChild(box);
+  }
 
-    const codeEl = box.querySelector('#csCode');
-    const noteEl = box.querySelector('#csNote');
-    const inputEl = box.querySelector('#csCodeInput');
+  function bindSync(root) {
+    const codeEl = root.querySelector('#csCode');
+    const noteEl = root.querySelector('#csNote');
+    const inputEl = root.querySelector('#csCodeInput');
 
-    box.querySelector('#csCodeBtn').addEventListener('click', async () => {
+    root.querySelector('#csCodeBtn').addEventListener('click', async () => {
       noteEl.textContent = '正在获取同步码……';
       const out = await silentFetch('/api/sync/code', {
         method: 'POST',
@@ -220,7 +230,7 @@
       }
     });
 
-    box.querySelector('#csRedeemBtn').addEventListener('click', async () => {
+    root.querySelector('#csRedeemBtn').addEventListener('click', async () => {
       const code = String(inputEl.value || '').trim().toUpperCase();
       if (!/^[A-Z2-9]{6}$/.test(code)) { noteEl.textContent = '格式不对：6 位字母或数字。'; return; }
       noteEl.textContent = '正在连接……';
@@ -243,6 +253,40 @@
         noteEl.textContent = '连接失败，检查一下码有没有输错。';
       }
     });
+  }
+
+  function openSyncModal() {
+    syncStyles();
+    let modal = document.getElementById('csModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'csModal';
+      modal.innerHTML = '<div class="cs-mask" data-close></div>'
+        + '<div class="cs-card"><div class="cs-head"><b>跨设备同步</b>'
+        + '<button type="button" class="cs-close" data-close>×</button></div>'
+        + '<div class="cs-sync" id="csBody">' + syncBoxHtml() + '</div></div>';
+      document.body.appendChild(modal);
+      bindSync(modal);
+      modal.addEventListener('click', (e) => {
+        if (e.target.closest('[data-close]')) modal.classList.remove('open');
+      });
+    }
+    modal.classList.add('open');
+  }
+
+  function wireSyncUI() {
+    if (syncMounted) return;
+    const apiBtn = document.getElementById('apiBtn');
+    if (!apiBtn) return;
+    syncMounted = true;
+    syncStyles();
+    const btn = document.createElement('button');
+    btn.id = 'csEntry';
+    btn.type = 'button';
+    btn.className = apiBtn.className || '';
+    btn.textContent = '同步';
+    btn.addEventListener('click', openSyncModal);
+    apiBtn.parentNode.insertBefore(btn, apiBtn);
   }
 
   window.CloudSync = {

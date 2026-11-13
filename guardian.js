@@ -16,6 +16,7 @@
     body.guardian-mode .tab-btn:not([data-view="grow"]),
     body.guardian-mode .nav-item:not([data-view="grow"]),
     body.guardian-mode .api-entry,
+    body.guardian-mode #csEntry,
     body.guardian-mode #navToggle,
     body.guardian-mode .ver-switch,
     body.guardian-mode .nav-sheet,
@@ -38,6 +39,7 @@
     .gx-btn { margin-top: 16px; width: 100%; height: 52px; border: 1px solid #1e3a8a;
       background: #1e3a8a; color: #fff; font-size: 15px; letter-spacing: .24em; cursor: pointer; }
     .gx-err { margin: 12px 0 0; height: 18px; font-size: 13px; color: #a8442a; }
+    .gx-hint { margin: 26px 0 0; font-size: 11px; line-height: 1.8; color: #a9a396; letter-spacing: .04em; }
     .gx-exit { position: fixed; right: 20px; top: 13px; z-index: 9999; padding: 9px 15px;
       border: 1px solid #d9d9d0; background: #fff; color: #6d767c;
       font-size: 12px; letter-spacing: .1em; cursor: pointer; }
@@ -54,6 +56,7 @@
     '<input class="gx-input" id="gxPin" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="····">' +
     '<button class="gx-btn" id="gxGo">进入</button>' +
     '<p class="gx-err" id="gxErr"></p>' +
+    '<p class="gx-hint">默认口令 2468<br>可在链接后加 &amp;pin=你的口令 自定义</p>' +
     '</div>';
   document.body.appendChild(gate);
 
