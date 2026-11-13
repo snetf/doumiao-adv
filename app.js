@@ -469,11 +469,28 @@ function renderTimeline() {
     <div class="tl-node ${state.visited.has(t.nodeId) ? 'lit' : ''} ${t.nodeId === state.nodeId ? 'current' : ''}" data-node="${t.nodeId}">
       <span class="tl-year">${t.year}</span>${t.label}
     </div>`).join('');
-  // 跳章只对已访问的节点开放；未点亮的时间轴点了不动
+  // 跳章只对已访问的节点开放；未点亮的节点点了给一句提示，避免「没反应」
   $('timeline').querySelectorAll('.tl-node.lit').forEach((el) =>
     el.addEventListener('click', () => {
       const id = el.dataset.node;
       if (id && id !== state.nodeId) renderNode(id);
+    }));
+  $('timeline').querySelectorAll('.tl-node:not(.lit)').forEach((el) =>
+    el.addEventListener('click', () => {
+      let bar = document.getElementById('tlHint');
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'tlHint';
+        bar.style.cssText = 'position:fixed;left:50%;bottom:98px;transform:translateX(-50%);'
+          + 'padding:9px 16px;border-radius:999px;background:var(--card);color:var(--ink);'
+          + 'border:1px solid var(--line);font-size:13px;z-index:9996;'
+          + 'transition:opacity .3s;box-shadow:0 8px 24px rgba(0,0,0,.18)';
+        document.body.appendChild(bar);
+      }
+      bar.textContent = '这一章还没解锁：从第一幕走进去，它就会亮起';
+      bar.style.opacity = '1';
+      clearTimeout(bar._t);
+      bar._t = setTimeout(() => { bar.style.opacity = '0'; }, 2400);
     }));
 }
 

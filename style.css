@@ -1292,7 +1292,7 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
 
 /* ============ 对话回溯面板（人狼村之谜式ログ） ============ */
 .log-modal {
-  position: fixed; inset: 0; z-index: 80;
+  position: fixed; inset: 0; z-index: 9997;
   background: rgba(15, 23, 42, .45);
   display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none;
@@ -1301,9 +1301,7 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
 .log-modal.show { opacity: 1; pointer-events: auto; }
 .log-card {
   width: min(680px, 92vw); max-height: 80vh;
-  background: var(--glass); border-radius: 18px;
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  backdrop-filter: blur(24px) saturate(1.5);
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, .28);
   display: flex; flex-direction: column;
   transform: translateY(12px);
@@ -1314,11 +1312,11 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, .38); border-radius: 18px 18px 0 0;
+  background: transparent; border-radius: 18px 18px 0 0;
 }
-.log-title { font-weight: 700; font-size: 1rem; color: #1e293b; }
+.log-title { font-weight: 700; font-size: 1rem; color: var(--ink); }
 .log-close {
-  border: none; background: #e2e8f0; color: #475569;
+  border: none; background: var(--glass-soft); color: var(--ink-soft);
   width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
   font-size: 0.85rem; transition: all .2s;
 }
@@ -1329,28 +1327,28 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
 }
 .log-item {
   display: flex; gap: 10px; align-items: flex-start;
-  padding: 8px 12px; background: #f8fafc;
-  border-radius: 10px; border: 1px solid #eef2f7;
+  padding: 8px 12px; background: var(--glass-soft);
+  border-radius: 10px; border: 1px solid var(--line);
   line-height: 1.7; font-size: 0.92rem;
 }
 .log-speaker {
   flex-shrink: 0; font-weight: 700; font-size: 0.78rem;
-  background: #2b4a3d;
-  color: #fff; border-radius: 999px; padding: 2px 10px;
+  background: var(--ink);
+  color: var(--card); border-radius: 999px; padding: 2px 10px;
   height: fit-content; margin-top: 2px;
 }
-.log-text { flex: 1; color: #1f2937; word-break: break-word; }
+.log-text { flex: 1; color: var(--ink); word-break: break-word; }
 /* 章节分隔线：回溯里清楚区分每一章 */
 .log-divider {
   display: flex; align-items: center; gap: 10px;
-  margin: 8px 0 2px; color: #5b6675; font-size: 0.75rem; letter-spacing: 2px;
+  margin: 8px 0 2px; color: var(--ink-soft); font-size: 0.75rem; letter-spacing: 2px;
 }
 .log-divider::before, .log-divider::after {
-  content: ''; flex: 1; border-top: 1px dashed #cbd5e1;
+  content: ''; flex: 1; border-top: 1px dashed var(--line);
 }
 .log-foot {
-  padding: 10px 20px; font-size: 0.76rem; color: #5b6675;
-  border-top: 1px solid #eef2f7; text-align: center;
+  padding: 10px 20px; font-size: 0.76rem; color: var(--ink-soft);
+  border-top: 1px solid var(--line); text-align: center;
 }
 .orch-agent {
   flex-shrink: 0; min-width: 32px; text-align: center;

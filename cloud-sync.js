@@ -180,20 +180,20 @@
     const style = document.createElement('style');
     style.id = 'csStyle';
     style.textContent = ''
-      + '.cs-sync{font-size:14px}'
-      + '.cs-sync-title{font-weight:700;margin-bottom:10px;font-size:16px}'
+      + '.cs-sync{font-size:14px;color:var(--ink,#16211c)}'
       + '.cs-row{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}'
-      + '.cs-code{font-size:22px;letter-spacing:4px;font-weight:800;font-family:Consolas,monospace}'
-      + '.cs-note{font-size:12px;color:#6d767c;line-height:1.7;margin-top:6px}'
-      + '#csModal{position:fixed;inset:0;z-index:9998;display:none}'
+      + '.cs-code{font-size:22px;letter-spacing:4px;font-weight:800;font-family:Consolas,monospace;color:var(--ink,#16211c)}'
+      + '.cs-note{font-size:12px;color:var(--ink-soft,#6d767c);line-height:1.7;margin-top:6px}'
+      + '#csModal{position:fixed;inset:0;z-index:99998;display:none}'
       + '#csModal.open{display:block}'
-      + '.cs-mask{position:absolute;inset:0;background:#1d2a24}'
-      + '.cs-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);'
-      + 'width:min(430px,92vw);background:#fbfaf6;border:1px solid #d9d9d0;border-radius:14px;'
+      + '.cs-mask{position:absolute;inset:0;z-index:0;background:#1d2a24}'
+      + '.cs-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;'
+      + 'width:min(430px,92vw);background:var(--card,#fbfaf6);color:var(--ink,#16211c);'
+      + 'border:1px solid var(--line,#d9d9d0);border-radius:14px;'
       + 'padding:22px 22px 20px;box-shadow:0 24px 70px rgba(0,0,0,.28)}'
       + '.cs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}'
-      + '.cs-head b{font-size:16px;letter-spacing:.02em}'
-      + '.cs-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:#6d767c}';
+      + '.cs-head b{font-size:16px;letter-spacing:.02em;color:var(--ink,#16211c)}'
+      + '.cs-close{border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:var(--ink-soft,#6d767c)}';
     document.head.appendChild(style);
   }
 
