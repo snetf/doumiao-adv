@@ -2407,10 +2407,14 @@ $('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendC
 const SOURCE_TEXT = { saved: '本机保存', env: '.env 默认', none: '未配置' };
 
 function paintApiConfig(c) {
-  // 云端：Key 由管理员在环境变量里配好，访客看不到「接入 AI」入口
+  // 云端：Key 由管理员在环境变量里配好，访客默认看不到「接入 AI」入口；
+  // 需要演示配置能力时，在网址后加 ?showapi=1 强制显示。
   if (c && c.cloud) {
-    $('apiBtn').style.display = 'none';
-    return;
+    const show = new URLSearchParams(location.search).get('showapi') === '1';
+    if (!show) {
+      $('apiBtn').style.display = 'none';
+      return;
+    }
   }
   const box = $('apiStatus');
   if (!c || !c.hasKey) {

@@ -32,14 +32,14 @@
     .gx-card { width: min(420px, 86vw); text-align: center; }
     .gx-tag { margin: 0; font: 11px/1 Consolas, monospace; letter-spacing: .3em; color: #8b8577; text-transform: uppercase; }
     .gx-title { margin: 18px 0 10px; font-family: "Songti SC", "SimSun", serif; font-size: 34px; letter-spacing: .1em; color: #16211c; }
-    .gx-sub { margin: 0 0 30px; font-size: 14px; line-height: 1.95; color: #6d767c; }
+    .gx-sub { margin: 0 0 30px; font-size: 14px; line-height: 1.95; color: #4f5a55; }
     .gx-input { width: 100%; height: 64px; text-align: center; font: 28px/64px Consolas, monospace;
       letter-spacing: .6em; border: 1px solid #d9d9d0; background: #fff; color: #16211c; outline: none; box-sizing: border-box; }
     .gx-input:focus { border-color: #1e3a8a; }
     .gx-btn { margin-top: 16px; width: 100%; height: 52px; border: 1px solid #1e3a8a;
       background: #1e3a8a; color: #fff; font-size: 15px; letter-spacing: .24em; cursor: pointer; }
     .gx-err { margin: 12px 0 0; height: 18px; font-size: 13px; color: #a8442a; }
-    .gx-hint { margin: 26px 0 0; font-size: 11px; line-height: 1.8; color: #a9a396; letter-spacing: .04em; }
+    .gx-hint { margin: 26px 0 0; font-size: 12px; line-height: 1.8; color: #766e60; letter-spacing: .04em; }
     .gx-exit { position: fixed; right: 20px; top: 13px; z-index: 9999; padding: 9px 15px;
       border: 1px solid #d9d9d0; background: #fff; color: #6d767c;
       font-size: 12px; letter-spacing: .1em; cursor: pointer; }

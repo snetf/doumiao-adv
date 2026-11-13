@@ -1335,21 +1335,21 @@ body.ui-full.on-story .dev-panel { top: calc(var(--topbar-h) + 72px); }
 }
 .log-speaker {
   flex-shrink: 0; font-weight: 700; font-size: 0.78rem;
-  background: linear-gradient(135deg, var(--mint), var(--sky));
+  background: #2b4a3d;
   color: #fff; border-radius: 999px; padding: 2px 10px;
   height: fit-content; margin-top: 2px;
 }
-.log-text { flex: 1; color: #334155; word-break: break-word; }
+.log-text { flex: 1; color: #1f2937; word-break: break-word; }
 /* 章节分隔线：回溯里清楚区分每一章 */
 .log-divider {
   display: flex; align-items: center; gap: 10px;
-  margin: 8px 0 2px; color: #94a3b8; font-size: 0.75rem; letter-spacing: 2px;
+  margin: 8px 0 2px; color: #5b6675; font-size: 0.75rem; letter-spacing: 2px;
 }
 .log-divider::before, .log-divider::after {
   content: ''; flex: 1; border-top: 1px dashed #cbd5e1;
 }
 .log-foot {
-  padding: 10px 20px; font-size: 0.76rem; color: #94a3b8;
+  padding: 10px 20px; font-size: 0.76rem; color: #5b6675;
   border-top: 1px solid #eef2f7; text-align: center;
 }
 .orch-agent {
