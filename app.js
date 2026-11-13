@@ -473,7 +473,12 @@ function renderTimeline() {
   $('timeline').querySelectorAll('.tl-node.lit').forEach((el) =>
     el.addEventListener('click', () => {
       const id = el.dataset.node;
-      if (id && id !== state.nodeId) renderNode(id);
+      if (!id || id === state.nodeId) return;
+      // 时间轴是「直接跳章」：关掉画廊层，跳过「回走廊再推门」那一步
+      state.hallEntryNode = id;
+      if (window.AdvHall && window.AdvHall.hide) window.AdvHall.hide();
+      switchView('story', { skipHall: true });
+      renderNode(id);
     }));
   $('timeline').querySelectorAll('.tl-node:not(.lit)').forEach((el) =>
     el.addEventListener('click', () => {
